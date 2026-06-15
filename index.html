@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnswerAI — Vos avis Google, gérés par l'IA</title>
+<link rel="stylesheet" href="assets/base.css">
+<style>
+/* ============ LANDING ============ */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(15,23,41,.72); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px; color: #fff; letter-spacing: -.02em; }
+.brand .logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--indigo), #7C75F0); display: grid; place-items: center; box-shadow: var(--shadow-indigo); }
+.brand .logo svg { width: 17px; height: 17px; }
+.nav-links { display: flex; align-items: center; gap: 30px; }
+.nav-links a { color: rgba(255,255,255,.78); font-size: 14.5px; font-weight: 500; transition: color .15s; }
+.nav-links a:hover { color: #fff; }
+.nav-cta { display: flex; align-items: center; gap: 14px; }
+.nav-login { color: rgba(255,255,255,.82); font-size: 14.5px; font-weight: 600; }
+@media (max-width: 880px) { .nav-links { display: none; } }
+
+/* Hero */
+.hero { position: relative; background: var(--navy); color: #fff; overflow: hidden; padding: 76px 0 90px; }
+.hero::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  background:
+    radial-gradient(680px 420px at 78% 8%, rgba(79,70,229,.42), transparent 60%),
+    radial-gradient(560px 380px at 12% 92%, rgba(99,91,255,.20), transparent 60%);
+  animation: heroGlow 14s ease-in-out infinite alternate;
+}
+@keyframes heroGlow { 0% { transform: translateY(0) scale(1); opacity: .9; } 100% { transform: translateY(-24px) scale(1.06); opacity: 1; } }
+.hero .wrap { position: relative; z-index: 1; display: grid; grid-template-columns: 1.04fr .96fr; gap: 56px; align-items: center; }
+.hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); padding: 6px 13px; border-radius: 999px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.9); margin-bottom: 26px; }
+.hero h1 { font-size: 54px; font-weight: 800; line-height: 1.04; letter-spacing: -.035em; }
+.hero h1 .grad { background: linear-gradient(100deg, #A9A3FF, #6F66F2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .sub { font-size: 18.5px; color: rgba(255,255,255,.74); margin-top: 22px; max-width: 540px; line-height: 1.6; }
+.hero-cta { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+.hero-trust { display: flex; align-items: center; gap: 18px; margin-top: 30px; color: rgba(255,255,255,.6); font-size: 13.5px; }
+.hero-trust .stars svg { width: 15px; }
+@media (max-width: 960px) { .hero .wrap { grid-template-columns: 1fr; gap: 44px; } .hero h1 { font-size: 42px; } }
+
+/* Dashboard mockup in hero */
+.mock {
+  background: #fff; border-radius: var(--r-xl); box-shadow: var(--shadow-lg);
+  overflow: hidden; color: var(--ink); position: relative;
+  animation: floaty 7s ease-in-out infinite;
+}
+@keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@media (prefers-reduced-motion: reduce) { .mock { animation: none; } .hero::before { animation: none; } }
+.mock-head { display: flex; align-items: center; gap: 8px; padding: 13px 16px; border-bottom: 1px solid var(--line); background: #fcfcfd; }
+.mock-head .tl { width: 11px; height: 11px; border-radius: 50%; }
+.mock-head .tt { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--ink-3); display: flex; align-items: center; gap: 6px; }
+.mock-body { padding: 18px; }
+.review-card { border: 1px solid var(--line); border-radius: var(--r); padding: 15px; }
+.review-top { display: flex; align-items: center; gap: 11px; margin-bottom: 10px; }
+.avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; color: #fff; font-size: 14px; flex-shrink: 0; }
+.review-name { font-weight: 650; font-size: 14.5px; }
+.review-meta { font-size: 12px; color: var(--ink-4); }
+.review-text { font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+.ai-resp { margin-top: 13px; background: var(--indigo-50); border: 1px solid var(--indigo-100); border-radius: var(--r); padding: 13px 14px; position: relative; }
+.ai-resp .ai-label { display: flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 700; color: var(--indigo-600); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+.ai-resp .ai-text { font-size: 13.5px; color: var(--ink); line-height: 1.55; min-height: 60px; }
+.ai-text .kw { color: var(--indigo-600); font-weight: 600; background: rgba(79,70,229,.09); border-radius: 4px; padding: 0 2px; }
+.caret { display: inline-block; width: 2px; height: 15px; background: var(--indigo); margin-left: 1px; vertical-align: -2px; animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.ai-actions { display: flex; gap: 8px; margin-top: 13px; opacity: 0; transform: translateY(6px); transition: .4s; }
+.ai-actions.show { opacity: 1; transform: none; }
+.float-kpi { position: absolute; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 12px 15px; }
+.float-kpi .k-val { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.float-kpi .k-lbl { font-size: 11.5px; color: var(--ink-3); font-weight: 500; }
+.float-1 { top: -22px; right: -18px; animation: floaty 7s ease-in-out infinite .5s; }
+.float-2 { bottom: -24px; left: -22px; animation: floaty 8s ease-in-out infinite 1s; }
+@media (max-width: 520px) { .float-1, .float-2 { display: none; } }
+
+/* Section scaffolding */
+.section { padding: 88px 0; }
+.section-head { text-align: center; max-width: 680px; margin: 0 auto 52px; }
+.section-head h2 { font-size: 38px; letter-spacing: -.03em; }
+.section-head p { font-size: 18px; color: var(--ink-3); margin-top: 16px; line-height: 1.6; }
+@media (max-width: 720px) { .section-head h2 { font-size: 30px; } }
+
+/* Social proof */
+.proof { background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 30px 0; }
+.proof-inner { display: flex; align-items: center; justify-content: space-between; gap: 30px; flex-wrap: wrap; }
+.proof-txt { font-weight: 600; color: var(--ink-2); font-size: 15px; }
+.proof-logos { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
+.logo-slot { height: 26px; width: 104px; border-radius: 6px; background: repeating-linear-gradient(135deg, #EDEEF2 0 8px, #F4F5F8 8px 16px); display: grid; place-items: center; font-size: 10px; color: var(--ink-4); font-family: ui-monospace, monospace; letter-spacing: .02em; }
+.proof-rating { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.proof-rating .big { font-size: 20px; }
+
+/* Problem cards */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+@media (max-width: 880px) { .grid-3 { grid-template-columns: 1fr; } }
+.prob-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 28px; box-shadow: var(--shadow-sm); }
+.prob-icon { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 18px; }
+.prob-icon svg { width: 23px; height: 23px; }
+.prob-card h3 { font-size: 19px; letter-spacing: -.02em; }
+.prob-card p { color: var(--ink-3); margin-top: 10px; font-size: 15px; line-height: 1.6; }
+
+/* Pillars */
+.pillar { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; padding: 56px 0; }
+.pillar.flip .pillar-text { order: 2; }
+@media (max-width: 880px) { .pillar, .pillar.flip { grid-template-columns: 1fr; gap: 36px; } .pillar.flip .pillar-text { order: 0; } }
+.pillar-text h3 { font-size: 30px; letter-spacing: -.03em; margin-top: 16px; }
+.pillar-text p { color: var(--ink-2); font-size: 16.5px; line-height: 1.65; margin-top: 16px; }
+.pillar-tags { display: flex; flex-direction: column; gap: 11px; margin-top: 24px; }
+.pillar-tags .t { display: flex; align-items: center; gap: 10px; font-weight: 550; font-size: 15px; }
+.pillar-tags .t svg { width: 19px; height: 19px; flex-shrink: 0; }
+.pillar-visual { background: #fff; border: 1px solid var(--line); border-radius: var(--r-xl); box-shadow: var(--shadow); padding: 22px; }
+
+/* phone mock for gating */
+.phone { width: 268px; margin: 0 auto; background: var(--navy); border-radius: 34px; padding: 11px; box-shadow: var(--shadow-lg); }
+.phone-screen { background: #EFF1F6; border-radius: 25px; overflow: hidden; min-height: 380px; }
+.phone-notch { height: 26px; display: grid; place-items: center; }
+.phone-notch::after { content: ''; width: 88px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.25); }
+.sms-thread { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.sms-from { font-size: 11px; color: var(--ink-4); text-align: center; font-weight: 600; }
+.bubble { background: #fff; border-radius: 16px 16px 16px 4px; padding: 11px 13px; font-size: 13px; color: var(--ink); max-width: 86%; box-shadow: var(--shadow-sm); line-height: 1.45; }
+.sms-choices { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.sms-btn { border-radius: 12px; padding: 10px 12px; font-size: 12.5px; font-weight: 600; text-align: center; }
+.sms-yes { background: var(--green-50); color: #0a8a5f; border: 1px solid #b8ead4; }
+.sms-no { background: #F1F2F5; color: var(--ink-2); border: 1px solid var(--line); }
+
+/* report mock */
+.report-mock { display: flex; flex-direction: column; gap: 14px; }
+.rm-row { display: flex; gap: 12px; }
+.rm-stat { flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 13px 14px; }
+.rm-stat .v { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.rm-stat .l { font-size: 11.5px; color: var(--ink-3); font-weight: 500; margin-top: 2px; }
+.kw-bars { display: flex; flex-direction: column; gap: 9px; }
+.kw-bar { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.kw-bar .lbl { width: 64px; color: var(--ink-2); font-weight: 550; }
+.kw-bar .track { flex: 1; height: 9px; background: #EEF0F3; border-radius: 5px; overflow: hidden; }
+.kw-bar .fill { height: 100%; border-radius: 5px; }
+
+/* Pricing */
+.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
+@media (max-width: 920px) { .pricing-grid { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto; } }
+.price-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-xl); padding: 30px; display: flex; flex-direction: column; box-shadow: var(--shadow-sm); position: relative; transition: transform .2s, box-shadow .2s; }
+.price-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.price-card.feat { border: 2px solid var(--indigo); box-shadow: var(--shadow-lg); }
+.price-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--indigo); color: #fff; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 999px; box-shadow: var(--shadow-indigo); }
+.price-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.price-amt { font-size: 44px; font-weight: 800; letter-spacing: -.03em; margin-top: 12px; }
+.price-amt span { font-size: 17px; font-weight: 600; color: var(--ink-3); letter-spacing: 0; }
+.price-feats { margin: 24px 0; display: flex; flex-direction: column; gap: 13px; }
+.price-feats li { display: flex; gap: 11px; font-size: 14.5px; color: var(--ink-2); align-items: flex-start; }
+.price-feats svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+.price-feats .fl-key { font-weight: 650; color: var(--ink); }
+.price-cta { margin-top: auto; }
+.pricing-note { text-align: center; color: var(--ink-3); font-size: 14.5px; margin-top: 34px; }
+
+/* Testimonials */
+.t-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+@media (max-width: 880px) { .t-grid { grid-template-columns: 1fr; } }
+.t-card { background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 28px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+.t-card .quote { font-size: 16px; line-height: 1.6; color: var(--ink); }
+.t-author { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
+.t-author .name { font-weight: 650; font-size: 14.5px; }
+.t-author .role { font-size: 13px; color: var(--ink-3); }
+
+/* Final CTA */
+.final-cta { background: var(--navy); color: #fff; position: relative; overflow: hidden; }
+.final-cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(700px 360px at 50% 0%, rgba(79,70,229,.4), transparent 65%); }
+.final-cta .wrap { position: relative; text-align: center; padding: 84px 24px; }
+.final-cta h2 { font-size: 40px; letter-spacing: -.03em; max-width: 640px; margin: 0 auto; }
+.final-cta .secure { display: inline-flex; align-items: center; gap: 8px; margin-top: 26px; color: rgba(255,255,255,.62); font-size: 13.5px; }
+@media (max-width: 720px) { .final-cta h2 { font-size: 30px; } }
+
+/* Footer */
+.footer { background: var(--navy-700); color: rgba(255,255,255,.6); padding: 54px 0 36px; }
+.footer-top { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.footer .tagline { max-width: 280px; font-size: 14px; margin-top: 14px; line-height: 1.6; }
+.footer-links { display: flex; gap: 56px; flex-wrap: wrap; }
+.footer-links h4 { color: #fff; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 14px; }
+.footer-links a { display: block; font-size: 14px; padding: 5px 0; transition: color .15s; }
+.footer-links a:hover { color: #fff; }
+.footer-bottom { padding-top: 26px; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="/">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.4 5.6L20 11l-5.6 2.4L12 19l-2.4-5.6L4 11l5.6-2.4L12 3z" fill="#fff"/></svg>
+      </span>
+      AnswerAI
+    </a>
+    <div class="nav-links">
+      <a href="#features">Fonctionnalités</a>
+      <a href="#pricing">Tarifs</a>
+      <a href="#testimonials">Témoignages</a>
+      <a href="Dashboard.html">Démo dashboard</a>
+    </div>
+    <div class="nav-cta">
+      <a class="nav-login" href="Auth.html">Se connecter</a>
+      <a class="btn btn-primary btn-sm" href="Auth.html">Connecter Google Business</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-text reveal">
+      <span class="hero-badge"><span class="dot" style="background:var(--green)"></span> IA active · 1 200+ avis gérés cette semaine</span>
+      <h1>Vos avis Google,<br><span class="grad">gérés par l'IA.</span> En 1 clic.</h1>
+      <p class="sub">AnswerAI répond à tous vos avis, transforme vos clients satisfaits en ambassadeurs et vous envoie un rapport chaque semaine. Sans effort de votre part.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="Auth.html">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M21.35 11.1H12v3.8h5.35c-.25 1.5-1.8 4.4-5.35 4.4-3.2 0-5.8-2.65-5.8-5.9s2.6-5.9 5.8-5.9c1.8 0 3 .77 3.7 1.43l2.5-2.42C16.9 8.5 14.7 7.5 12 7.5 6.9 7.5 2.8 11.6 2.8 16.7S6.9 26 12 26c5.3 0 8.8-3.72 8.8-8.96 0-.6-.07-1.06-.15-1.5z" transform="translate(0 -4.7)"/></svg>
+          Connecter mon compte Google Business
+        </a>
+        <a class="btn btn-ghost" href="#features">Voir une démo</a>
+      </div>
+      <div class="hero-trust">
+        <span class="stars" data-stars="5"></span>
+        <span>4,9/5 · noté par 200+ établissements</span>
+      </div>
+    </div>
+
+    <!-- LIVE MOCKUP -->
+    <div class="hero-visual reveal" style="position:relative;">
+      <div class="mock">
+        <div class="mock-head">
+          <span class="tl" style="background:#FF5F57"></span>
+          <span class="tl" style="background:#FEBC2E"></span>
+          <span class="tl" style="background:#28C840"></span>
+          <span class="tt"><span class="dot" style="background:var(--indigo)"></span> AnswerAI · Réponse en direct</span>
+        </div>
+        <div class="mock-body">
+          <div class="review-card">
+            <div class="review-top">
+              <span class="avatar" style="background:#E0823C">M</span>
+              <div>
+                <div class="review-name">Marie L.</div>
+                <div class="review-meta">il y a 2 heures · Google</div>
+              </div>
+              <span class="stars" data-stars="4" style="margin-left:auto"></span>
+            </div>
+            <p class="review-text">« Le risotto était délicieux mais l'attente un peu longue le vendredi soir. »</p>
+            <div class="ai-resp">
+              <div class="ai-label"><span class="dot" style="background:var(--indigo)"></span> Réponse générée par l'IA</div>
+              <div class="ai-text" id="typed"></div>
+              <div class="ai-actions" id="aiActions">
+                <button class="btn btn-green btn-sm">✓ Approuver</button>
+                <button class="btn btn-ghost-dark btn-sm">Modifier</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="float-kpi float-1">
+        <div class="k-val" style="color:var(--green)">+0,5 ★</div>
+        <div class="k-lbl">en 3 mois</div>
+      </div>
+      <div class="float-kpi float-2">
+        <div class="k-val">94%</div>
+        <div class="k-lbl">taux de réponse</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SOCIAL PROOF -->
+<section class="proof">
+  <div class="wrap proof-inner">
+    <div class="proof-txt">Déjà utilisé par 200+ restaurants et hôtels en France</div>
+    <div class="proof-logos">
+      <span class="logo-slot">logo</span><span class="logo-slot">logo</span>
+      <span class="logo-slot">logo</span><span class="logo-slot">logo</span>
+      <span class="logo-slot">logo</span>
+    </div>
+    <div class="proof-rating">
+      <span class="stars" data-stars="5"></span>
+      <span><span class="big">4,9/5</span> · 1 200+ avis gérés</span>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Le problème</span>
+      <h2>Votre réputation se joue en ligne. Sans vous.</h2>
+      <p>Chaque avis non traité est une opportunité perdue — pour votre référencement comme pour votre image.</p>
+    </div>
+    <div class="grid-3">
+      <div class="prob-card reveal">
+        <div class="prob-icon" style="background:var(--red-50)">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#EF4444" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Vous ne répondez pas à vos avis</h3>
+        <p>Seuls 35% des restaurateurs répondent à leurs avis Google. Pourtant, ça impacte directement votre référencement.</p>
+      </div>
+      <div class="prob-card reveal">
+        <div class="prob-icon" style="background:var(--amber-50)">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Vos clients mécontents vous notent en public</h3>
+        <p>Sans système de filtre, chaque client insatisfait peut vous laisser un 1 étoile visible par tous.</p>
+      </div>
+      <div class="prob-card reveal">
+        <div class="prob-icon" style="background:var(--indigo-50)">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M3 3v18h18M7 14l4-4 3 3 5-6" stroke="#4F46E5" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3>Vous n'avez aucune visibilité sur vos données</h3>
+        <p>Vous ne savez pas ce qui revient souvent dans vos avis, ni comment vous vous améliorez dans le temps.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES / PILLARS -->
+<section class="section" id="features" style="background:#fff; border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">La solution</span>
+      <h2>Trois piliers, zéro effort</h2>
+      <p>AnswerAI travaille en continu pendant que vous gérez votre établissement.</p>
+    </div>
+
+    <!-- Pillar 1 -->
+    <div class="pillar">
+      <div class="pillar-text reveal">
+        <span class="pill pill-indigo">Pilier 1</span>
+        <h3>Réponses automatiques IA</h3>
+        <p>Notre IA lit chaque avis, identifie le ton, les plats mentionnés et le contexte, puis rédige une réponse personnalisée optimisée pour le SEO Google. Vous approuvez en un clic ou laissez l'IA envoyer automatiquement.</p>
+        <div class="pillar-tags">
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Réponse en moins de 2h</span>
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Mots-clés SEO intégrés</span>
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Ton adapté à votre établissement</span>
+        </div>
+      </div>
+      <div class="pillar-visual reveal">
+        <div class="review-card">
+          <div class="review-top">
+            <span class="avatar" style="background:#3C7DE0">T</span>
+            <div><div class="review-name">Thomas R.</div><div class="review-meta">il y a 4 heures · Google</div></div>
+            <span class="stars" data-stars="4" style="margin-left:auto"></span>
+          </div>
+          <p class="review-text">« Le risotto était délicieux mais l'attente un peu longue. »</p>
+          <div class="ai-resp">
+            <div class="ai-label"><span class="dot" style="background:var(--indigo)"></span> Réponse IA</div>
+            <div class="ai-text">Merci beaucoup Thomas ! Ravis que notre <span class="kw">risotto</span> vous ait plu. Nous prenons note de votre remarque sur l'attente et travaillons à l'améliorer. Au plaisir de vous revoir bientôt chez <span class="kw">Chez Luigi</span> !</div>
+            <div class="ai-actions show">
+              <button class="btn btn-green btn-sm">✓ Approuver</button>
+              <button class="btn btn-ghost-dark btn-sm">Modifier</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pillar 2 -->
+    <div class="pillar flip">
+      <div class="pillar-text reveal">
+        <span class="pill pill-indigo">Pilier 2</span>
+        <h3>Review Gating</h3>
+        <p>Après chaque repas, AnswerAI envoie automatiquement un SMS ou email à vos clients. Les satisfaits sont guidés vers Google pour laisser un avis public. Les insatisfaits vous contactent en privé. Résultat : votre note monte, vos problèmes restent internes.</p>
+        <div class="pillar-tags">
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> SMS et email automatiques</span>
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Filtre intelligent satisfait / insatisfait</span>
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Conforme RGPD</span>
+        </div>
+      </div>
+      <div class="pillar-visual reveal" style="background:transparent; border:none; box-shadow:none; padding:0;">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-notch"></div>
+            <div class="sms-thread">
+              <div class="sms-from">Chez Luigi · SMS</div>
+              <div class="bubble">Bonjour Marie, votre expérience chez <strong>Chez Luigi</strong> vous a-t-elle satisfaite ?</div>
+              <div class="sms-choices">
+                <div class="sms-btn sms-yes">😊 Oui, je laisse un avis</div>
+                <div class="sms-btn sms-no">😕 Non, contacter l'équipe</div>
+              </div>
+              <div class="sms-from" style="margin-top:6px;">« Oui » → avis Google · « Non » → formulaire privé</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pillar 3 -->
+    <div class="pillar">
+      <div class="pillar-text reveal">
+        <span class="pill pill-indigo">Pilier 3</span>
+        <h3>Rapports &amp; Analyses</h3>
+        <p>Chaque lundi matin, recevez un rapport synthétique par email : évolution de votre note, tendances dans les avis, actions prioritaires recommandées. Un plan d'action concret, pas juste des chiffres.</p>
+        <div class="pillar-tags">
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Rapport hebdomadaire automatique</span>
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Rapport mensuel détaillé</span>
+          <span class="t"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="var(--green-50)"/><path d="M7 12.5l3 3 7-7" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Recommandations actionnables</span>
+        </div>
+      </div>
+      <div class="pillar-visual reveal">
+        <div class="report-mock">
+          <div style="font-weight:700; font-size:15px;">Rapport hebdomadaire · Chez Luigi</div>
+          <div class="rm-row">
+            <div class="rm-stat"><div class="v">4,3 <span style="font-size:13px;color:var(--green)">+0,2</span></div><div class="l">Note moyenne</div></div>
+            <div class="rm-stat"><div class="v">12</div><div class="l">Nouveaux avis</div></div>
+            <div class="rm-stat"><div class="v">11</div><div class="l">Réponses envoyées</div></div>
+          </div>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px;">Mots qui reviennent</div>
+            <div class="kw-bars">
+              <div class="kw-bar"><span class="lbl">Service</span><span class="track"><span class="fill" style="width:82%;background:var(--green)"></span></span></div>
+              <div class="kw-bar"><span class="lbl">Cadre</span><span class="track"><span class="fill" style="width:68%;background:var(--green)"></span></span></div>
+              <div class="kw-bar"><span class="lbl">Attente</span><span class="track"><span class="fill" style="width:44%;background:var(--amber)"></span></span></div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;">Évolution sur 8 semaines</div>
+            <svg viewBox="0 0 320 80" style="width:100%; height:auto;">
+              <polyline points="6,58 50,52 94,55 138,44 182,40 226,34 270,30 314,22" fill="none" stroke="var(--indigo)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="314" cy="22" r="4" fill="var(--indigo)"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Tarifs</span>
+      <h2>Un prix simple, un retour immédiat</h2>
+      <p>Choisissez le plan adapté à votre établissement. Changez ou annulez à tout moment.</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Starter -->
+      <div class="price-card reveal">
+        <div class="price-name">Starter</div>
+        <div class="price-amt">49€<span> /mois</span></div>
+        <ul class="price-feats">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span class="fl-key">1 établissement</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span class="fl-key">50</span> réponses IA / mois</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Review gating <span class="fl-key">SMS</span> uniquement</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rapport <span class="fl-key">mensuel</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Support par email</span></li>
+        </ul>
+        <a class="btn btn-ghost-dark price-cta" href="Auth.html">Commencer</a>
+      </div>
+      <!-- Pro -->
+      <div class="price-card feat reveal">
+        <span class="price-badge">Le plus populaire</span>
+        <div class="price-name" style="color:var(--indigo)">Pro</div>
+        <div class="price-amt">99€<span> /mois</span></div>
+        <ul class="price-feats">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><span class="fl-key">1 établissement</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Réponses IA <span class="fl-key">illimitées</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Review gating <span class="fl-key">SMS + Email</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rapports <span class="fl-key">hebdo + mensuel</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Support prioritaire</span></li>
+        </ul>
+        <a class="btn btn-primary price-cta" href="Auth.html">Commencer — 14j gratuits</a>
+      </div>
+      <!-- Agence -->
+      <div class="price-card reveal">
+        <div class="price-name">Agence</div>
+        <div class="price-amt">299€<span> /mois</span></div>
+        <ul class="price-feats">
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Jusqu'à <span class="fl-key">10 établissements</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Réponses IA <span class="fl-key">illimitées</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Review gating <span class="fl-key">SMS + Email</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Rapports <span class="fl-key">hebdo + mensuel + custom</span></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4 4 10-10" stroke="#4F46E5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Support dédié</span></li>
+        </ul>
+        <a class="btn btn-ghost-dark price-cta" href="Auth.html">Nous contacter</a>
+      </div>
+    </div>
+    <p class="pricing-note">Sans engagement. Annulez à tout moment. Essai gratuit 14 jours sur le plan Pro, sans CB.</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="section" id="testimonials" style="background:#fff; border-top:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Ils nous font confiance</span>
+      <h2>Des résultats, semaine après semaine</h2>
+    </div>
+    <div class="t-grid">
+      <div class="t-card reveal">
+        <span class="stars" data-stars="5" style="margin-bottom:16px;"></span>
+        <p class="quote">« Avant AnswerAI, je répondais à peut-être 1 avis sur 5. Maintenant tout est fait automatiquement et ma note est passée de 4,1 à 4,6 en 3 mois. »</p>
+        <div class="t-author">
+          <span class="avatar" style="background:#E0823C">M</span>
+          <div><div class="name">Marco T.</div><div class="role">Restaurant Il Gusto, Lyon</div></div>
+        </div>
+      </div>
+      <div class="t-card reveal">
+        <span class="stars" data-stars="5" style="margin-bottom:16px;"></span>
+        <p class="quote">« Le review gating a tout changé. Je récupère les insatisfaits avant qu'ils postent sur Google. J'aurais aimé avoir ça plus tôt. »</p>
+        <div class="t-author">
+          <span class="avatar" style="background:#7C75F0">S</span>
+          <div><div class="name">Sophie M.</div><div class="role">Hôtel Le Cèdre, Bordeaux</div></div>
+        </div>
+      </div>
+      <div class="t-card reveal">
+        <span class="stars" data-stars="5" style="margin-bottom:16px;"></span>
+        <p class="quote">« Le rapport du lundi matin me prend 2 minutes à lire. Je sais exactement quoi améliorer chaque semaine. »</p>
+        <div class="t-author">
+          <span class="avatar" style="background:#0a8a5f">K</span>
+          <div><div class="name">Karim B.</div><div class="role">Brasserie Le Grand Large, Paris</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="wrap">
+    <h2>Prêt à reprendre le contrôle de votre réputation ?</h2>
+    <div style="margin-top:32px;">
+      <a class="btn btn-primary" href="Auth.html" style="font-size:16px; padding:16px 28px;">Connecter Google Business — Gratuit 14 jours</a>
+    </div>
+    <div class="secure">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2" stroke="rgba(255,255,255,.62)" stroke-width="1.8"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="rgba(255,255,255,.62)" stroke-width="1.8"/></svg>
+      Connexion sécurisée via OAuth Google. Nous ne stockons jamais votre mot de passe.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <a class="brand" href="/" style="font-size:18px;">
+          <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.4 5.6L20 11l-5.6 2.4L12 19l-2.4-5.6L4 11l5.6-2.4L12 3z" fill="#fff"/></svg></span>
+          AnswerAI
+        </a>
+        <p class="tagline">La réputation en ligne de votre établissement, gérée par l'IA. Sans effort.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <h4>Produit</h4>
+          <a href="#features">Fonctionnalités</a>
+          <a href="#pricing">Tarifs</a>
+          <a href="Dashboard.html">Démo dashboard</a>
+        </div>
+        <div>
+          <h4>Ressources</h4>
+          <a href="#">Blog</a>
+          <a href="#">Centre d'aide</a>
+          <a href="#">Contact</a>
+        </div>
+        <div>
+          <h4>Légal</h4>
+          <a href="#">CGU</a>
+          <a href="#">Politique de confidentialité</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 AnswerAI · Tous droits réservés</div>
+  </div>
+</footer>
+
+<script src="assets/ui.js"></script>
+<script>
+// ---- AI typing animation in hero ----
+(function () {
+  const target = document.getElementById('typed');
+  const actions = document.getElementById('aiActions');
+  if (!target) return;
+  const parts = [
+    {t: "Merci beaucoup Marie ! Ravis que notre "},
+    {t: "risotto", kw: true},
+    {t: " vous ait plu. Nous prenons note de votre remarque sur l'attente du vendredi et travaillons à l'améliorer. Au plaisir de vous revoir bientôt chez "},
+    {t: "Chez Luigi", kw: true},
+    {t: " !"},
+  ];
+  const full = parts.map(p => p.t).join('');
+  let i = 0;
+  function render(n) {
+    let out = '', count = 0;
+    for (const p of parts) {
+      if (count + p.t.length <= n) {
+        out += p.kw ? `<span class="kw">${p.t}</span>` : p.t;
+        count += p.t.length;
+      } else {
+        const slice = p.t.slice(0, n - count);
+        out += p.kw ? `<span class="kw">${slice}</span>` : slice;
+        count = n;
+        break;
+      }
+    }
+    target.innerHTML = out + '<span class="caret"></span>';
+  }
+  function startTyping() {
+    i = 0;
+    const tick = () => {
+      i++;
+      render(i);
+      if (i < full.length) {
+        setTimeout(tick, 18 + Math.random() * 30);
+      } else {
+        target.innerHTML = target.innerHTML.replace('<span class="caret"></span>', '');
+        actions.classList.add('show');
+      }
+    };
+    tick();
+  }
+  // begin after a short beat
+  setTimeout(startTyping, 700);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+/* ============================================================
+   AnswerAI — Shared design system
+   Navy #0F1729 · Indigo #4F46E5 · Soft white #F9FAFB
+   Green #10B981 (positive) · Amber #F59E0B (warning)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Brand */
+  --navy:        #0F1729;
+  --navy-700:    #1B2438;
+  --navy-600:    #273149;
+  --indigo:      #4F46E5;
+  --indigo-600:  #4338CA;
+  --indigo-50:   #EEF0FE;
+  --indigo-100:  #E0E2FC;
+  --green:       #10B981;
+  --green-50:    #E7F8F1;
+  --amber:       #F59E0B;
+  --amber-50:    #FEF4E2;
+  --red:         #EF4444;
+  --red-50:      #FDECEC;
+
+  /* Neutrals */
+  --bg:          #F9FAFB;
+  --surface:     #FFFFFF;
+  --line:        #E8EAEF;
+  --line-strong: #D6D9E1;
+  --ink:         #0F1729;
+  --ink-2:       #3A4253;
+  --ink-3:       #6B7280;
+  --ink-4:       #9AA1AE;
+
+  /* Type */
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Radius & shadow */
+  --r-sm: 8px;
+  --r:    12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --shadow-sm: 0 1px 2px rgba(15,23,41,.06), 0 1px 3px rgba(15,23,41,.05);
+  --shadow:    0 4px 16px rgba(15,23,41,.07), 0 1px 3px rgba(15,23,41,.05);
+  --shadow-lg: 0 18px 48px rgba(15,23,41,.14), 0 4px 12px rgba(15,23,41,.06);
+  --shadow-indigo: 0 10px 30px rgba(79,70,229,.28);
+
+  --maxw: 1180px;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--bg);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 { margin: 0; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+::selection { background: var(--indigo); color: #fff; }
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+  padding: 13px 22px; border-radius: var(--r);
+  transition: transform .15s ease, box-shadow .2s ease, background .15s ease, border-color .15s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--indigo); color: #fff; box-shadow: var(--shadow-indigo); }
+.btn-primary:hover { background: var(--indigo-600); box-shadow: 0 14px 34px rgba(79,70,229,.36); }
+.btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.28); }
+.btn-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.5); }
+.btn-ghost-dark { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
+.btn-ghost-dark:hover { background: #fff; border-color: var(--ink-4); }
+.btn-green { background: var(--green); color: #fff; box-shadow: 0 8px 22px rgba(16,185,129,.26); }
+.btn-green:hover { filter: brightness(1.04); }
+.btn-sm { padding: 9px 15px; font-size: 13.5px; border-radius: var(--r-sm); }
+.btn-block { width: 100%; }
+
+/* ---------- Pills / badges ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
+}
+.pill-indigo { background: var(--indigo-50); color: var(--indigo-600); }
+.pill-green  { background: var(--green-50);  color: #0a8a5f; }
+.pill-amber  { background: var(--amber-50);  color: #b06d05; }
+.pill-red    { background: var(--red-50);    color: #c0322f; }
+.pill-grey   { background: #F1F2F5;          color: var(--ink-3); }
+
+.dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+
+/* ---------- Stars ---------- */
+.stars { display: inline-flex; gap: 2px; }
+.stars svg { width: 16px; height: 16px; }
+.stars .on  { fill: var(--amber); }
+.stars .off { fill: #DfE2E8; }
+
+/* ---------- Cards ---------- */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); box-shadow: var(--shadow-sm);
+}
+
+/* ---------- Reveal on scroll ---------- */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none; }
+}
+
+.eyebrow {
+  font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--indigo);
+}
