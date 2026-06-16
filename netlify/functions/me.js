@@ -10,7 +10,7 @@ exports.handler = async (event) => {
   const supabase = getSupabase();
   const { data: user } = await supabase
     .from('users')
-    .select('id, email, name, picture, establishment_name, place_id, google_review_url, tone, auto_send, custom_instructions')
+    .select('id, email, name, picture, establishment_name, place_id, google_review_url, rating, review_count, tone, auto_send, custom_instructions')
     .eq('id', session.userId)
     .single();
 

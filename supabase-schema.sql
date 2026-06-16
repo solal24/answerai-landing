@@ -16,6 +16,8 @@ CREATE TABLE users (
   place_id        TEXT,
   establishment_name TEXT,
   google_review_url  TEXT,
+  rating          NUMERIC,
+  review_count    INTEGER,
   -- Paramètres IA
   tone            TEXT DEFAULT 'professionnel', -- professionnel | chaleureux | formel
   auto_send       BOOLEAN DEFAULT false,
@@ -50,7 +52,7 @@ CREATE TABLE gating_contacts (
   phone           TEXT,
   email           TEXT,
   channel         TEXT, -- sms | email
-  status          TEXT DEFAULT 'sent', -- sent | satisfied | unsatisfied
+  status          TEXT DEFAULT 'sent', -- sent | unsatisfied (passe à 'unsatisfied' seulement si le client clique le lien de feedback privé)
   message_sent_at TIMESTAMPTZ,
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
@@ -68,3 +70,10 @@ CREATE TABLE gating_responses (
 CREATE INDEX idx_reviews_user ON reviews(user_id, created_at DESC);
 CREATE INDEX idx_gating_user ON gating_contacts(user_id, created_at DESC);
 CREATE INDEX idx_gating_status ON gating_contacts(user_id, status);
+
+-- ============================================================
+-- MIGRATION — à exécuter si vous avez déjà créé les tables avant
+-- l'ajout des colonnes rating / review_count (16/06/2026)
+-- ============================================================
+ALTER TABLE users ADD COLUMN IF NOT EXISTS rating NUMERIC;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS review_count INTEGER;

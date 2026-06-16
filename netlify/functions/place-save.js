@@ -13,7 +13,7 @@ exports.handler = async (event) => {
   // Récupère les détails de l'établissement via Places API
   const url = new URL('https://maps.googleapis.com/maps/api/place/details/json');
   url.searchParams.set('place_id', place_id);
-  url.searchParams.set('fields', 'name,url,rating,user_ratings_total');
+  url.searchParams.set('fields', 'name,rating,user_ratings_total');
   url.searchParams.set('language', 'fr');
   url.searchParams.set('key', process.env.GOOGLE_PLACES_API_KEY);
 
@@ -31,6 +31,8 @@ exports.handler = async (event) => {
       place_id,
       establishment_name: place.name || 'Mon établissement',
       google_review_url: googleReviewUrl,
+      rating: place.rating ?? null,
+      review_count: place.user_ratings_total ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', session.userId);

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnswerAI — Review Gating</title>
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/dashboard.css">
+<style>
+.g-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-bottom: 26px; }
+@media (max-width: 760px){ .g-stats { grid-template-columns: 1fr; } }
+.g-stat { background:#fff; border:1px solid var(--line); border-radius:var(--r-lg); padding:22px; box-shadow:var(--shadow-sm); }
+.g-stat .v { font-size:34px; font-weight:800; letter-spacing:-.03em; }
+.g-stat .l { color:var(--ink-3); font-size:14px; margin-top:6px; }
+.g-stat .bar { height:6px; border-radius:3px; background:#EEF0F3; margin-top:14px; overflow:hidden; }
+.g-stat .bar span { display:block; height:100%; border-radius:3px; }
+.chan { display:inline-flex; align-items:center; gap:6px; font-weight:600; font-size:13px; }
+.chan svg { width:15px; height:15px; }
+.fb-row { display:flex; gap:16px; padding:16px; border:1px solid var(--line); border-radius:var(--r); align-items:flex-start; }
+.fb-row + .fb-row { margin-top:12px; }
+.fb-row.done { opacity:.6; }
+.section-title { font-size:18px; font-weight:700; letter-spacing:-.02em; margin:34px 0 16px; }
+.contact-row { display:flex; gap:8px; margin-bottom:10px; }
+.contact-row .input { flex:1; }
+.rm-row { width:34px; height:34px; flex-shrink:0; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--ink-4); font-size:16px; cursor:pointer; }
+.rm-row:hover { border-color:#FECACA; color:#B91C1C; }
+.send-result { margin-top:14px; font-size:13.5px; border-radius:8px; padding:10px 12px; }
+.send-result.ok { background:#ECFDF5; color:#067a55; }
+.send-result.err { background:#FEF2F2; color:#B91C1C; }
+</style>
+</head>
+<body data-page="gating" data-title="Review Gating">
+<div class="app">
+  <div class="main">
+    <div class="content">
+      <div class="page-head" style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div>
+          <h1>Review Gating</h1>
+          <p class="desc">Guidez vos clients satisfaits vers Google et récupérez les insatisfaits en privé.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="openDrawer">+ Inviter des clients</button>
+      </div>
+
+      <!-- STATS -->
+      <div class="g-stats">
+        <div class="g-stat">
+          <div class="v" id="statTotal">—</div>
+          <div class="l">Invitations envoyées ce mois</div>
+          <div class="bar"><span id="barTotal" style="width:100%;background:var(--indigo)"></span></div>
+        </div>
+        <div class="g-stat">
+          <div class="v" style="color:var(--green)" id="statSatisfied">—</div>
+          <div class="l">Sans signalement (orientés vers Google)</div>
+          <div class="bar"><span id="barSatisfied" style="width:0%;background:var(--green)"></span></div>
+        </div>
+        <div class="g-stat">
+          <div class="v" style="color:#b06d05" id="statUnsatisfied">—</div>
+          <div class="l">Insatisfaits traités en interne</div>
+          <div class="bar"><span id="barUnsatisfied" style="width:0%;background:var(--amber)"></span></div>
+        </div>
+      </div>
+
+      <!-- SENT INVITATIONS -->
+      <div class="section-title">Invitations envoyées ce mois</div>
+      <div class="panel">
+        <table class="tbl">
+          <thead><tr><th>Nom</th><th>Canal</th><th>Contact</th><th>Statut</th><th>Envoyé le</th></tr></thead>
+          <tbody id="invitesBody">
+            <tr><td colspan="5" style="color:var(--ink-4)">Chargement…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- INTERNAL FEEDBACK -->
+      <div class="section-title">Insatisfaits récents <span class="pill pill-amber" style="vertical-align:middle">Boîte privée</span></div>
+      <div class="panel"><div class="panel-body" id="fbList">
+        <p style="color:var(--ink-4);font-size:14px">Chargement…</p>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER -->
+<div class="drawer-scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2 style="font-size:18px">Inviter des clients</h2>
+    <button class="tb-icon" id="closeDrawer" style="border:none;background:transparent"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <div><label class="lbl-field">Canal</label>
+      <div style="display:flex;gap:8px">
+        <button class="chip active" data-c="sms" style="flex:1">SMS</button>
+        <button class="chip" data-c="email" style="flex:1">Email</button>
+      </div>
+    </div>
+    <div style="margin-top:18px">
+      <label class="lbl-field">Clients à inviter</label>
+      <div id="contactRows"></div>
+      <button class="btn btn-ghost-dark btn-sm" id="addRow">+ Ajouter un contact</button>
+    </div>
+    <p style="font-size:12.5px;color:var(--ink-3);margin-top:16px;line-height:1.5">
+      Chaque client reçoit un message lui demandant si son expérience était satisfaisante. S'il répond oui, il est redirigé vers votre fiche Google. S'il répond non, son message arrive en privé ci-dessous.
+    </p>
+    <div id="sendResult"></div>
+  </div>
+  <div class="drawer-foot">
+    <button class="btn btn-ghost-dark btn-block" id="cancelDrawer">Annuler</button>
+    <button class="btn btn-primary btn-block" id="saveDrawer">Envoyer</button>
+  </div>
+</aside>
+
+<script src="assets/ui.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/shell.js"></script>
+<script>
+let channel = 'sms';
+const drawer = document.getElementById('drawer'), scrim = document.getElementById('scrim');
+const contactRows = document.getElementById('contactRows');
+const sendResult = document.getElementById('sendResult');
+
+function rowHtml() {
+  return `<div class="contact-row">
+    <input class="input nm-input" placeholder="Nom">
+    <input class="input contact-input" placeholder="${channel === 'sms' ? 'Téléphone (+33...)' : 'Email'}">
+    <button class="rm-row" type="button">×</button>
+  </div>`;
+}
+function addRow() { contactRows.insertAdjacentHTML('beforeend', rowHtml()); }
+function resetRows() { contactRows.innerHTML = ''; addRow(); }
+function refreshPlaceholders() {
+  contactRows.querySelectorAll('.contact-input').forEach(i => i.placeholder = channel === 'sms' ? 'Téléphone (+33...)' : 'Email');
+}
+
+function openDrawer() { resetRows(); sendResult.innerHTML = ''; drawer.classList.add('open'); scrim.classList.add('open'); }
+function closeDrawer() { drawer.classList.remove('open'); scrim.classList.remove('open'); }
+document.getElementById('openDrawer').addEventListener('click', openDrawer);
+document.getElementById('closeDrawer').addEventListener('click', closeDrawer);
+document.getElementById('cancelDrawer').addEventListener('click', closeDrawer);
+scrim.addEventListener('click', closeDrawer);
+document.getElementById('addRow').addEventListener('click', addRow);
+
+drawer.addEventListener('click', e => {
+  const c = e.target.closest('[data-c]');
+  if (c) {
+    drawer.querySelectorAll('[data-c]').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+    channel = c.dataset.c;
+    refreshPlaceholders();
+    return;
+  }
+  const rm = e.target.closest('.rm-row');
+  if (rm) { rm.closest('.contact-row').remove(); if (!contactRows.children.length) addRow(); }
+});
+
+document.getElementById('saveDrawer').addEventListener('click', async () => {
+  const contacts = [...contactRows.querySelectorAll('.contact-row')].map(row => {
+    const name = row.querySelector('.nm-input').value.trim();
+    const contactVal = row.querySelector('.contact-input').value.trim();
+    const c = { name };
+    if (channel === 'sms') c.phone = contactVal; else c.email = contactVal;
+    return c;
+  }).filter(c => c.name && (c.phone || c.email));
+
+  if (!contacts.length) {
+    sendResult.innerHTML = '<div class="send-result err">Ajoutez au moins un contact avec un nom et un numéro/email.</div>';
+    return;
+  }
+
+  const btn = document.getElementById('saveDrawer');
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    const data = await window.AnswerAPI.post('gating-send', { contacts, channel });
+    const sent = data.results.filter(r => r.status === 'sent').length;
+    const failed = data.results.filter(r => r.status === 'error').length;
+    sendResult.innerHTML = `<div class="send-result ${failed ? 'err' : 'ok'}">${sent} invitation${sent > 1 ? 's' : ''} envoyée${sent > 1 ? 's' : ''}${failed ? `, ${failed} échec(s)` : ''}.</div>`;
+    loadInvites();
+    setTimeout(closeDrawer, 1400);
+  } catch (e) {
+    sendResult.innerHTML = '<div class="send-result err">Erreur lors de l\'envoi. Réessayez.</div>';
+  }
+  btn.disabled = false; btn.textContent = 'Envoyer';
+});
+
+function timeAgo(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+}
+function chanPill(c) {
+  return c === 'sms'
+    ? '<span class="chan"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="3" stroke="#4F46E5" stroke-width="1.7"/><path d="M10 18h4" stroke="#4F46E5" stroke-width="1.7" stroke-linecap="round"/></svg> SMS</span>'
+    : '<span class="chan"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#4F46E5" stroke-width="1.7"/><path d="m3 7 9 6 9-6" stroke="#4F46E5" stroke-width="1.7"/></svg> Email</span>';
+}
+
+async function loadInvites() {
+  try {
+    const data = await window.AnswerAPI.get('gating-list');
+    const { stats, contacts, feedbacks } = data;
+
+    document.getElementById('statTotal').textContent = stats.total;
+    document.getElementById('statSatisfied').textContent = stats.satisfied;
+    document.getElementById('statUnsatisfied').textContent = stats.unsatisfied;
+    document.getElementById('barSatisfied').style.width = stats.total ? Math.round(100 * stats.satisfied / stats.total) + '%' : '0%';
+    document.getElementById('barUnsatisfied').style.width = stats.total ? Math.round(100 * stats.unsatisfied / stats.total) + '%' : '0%';
+
+    document.getElementById('invitesBody').innerHTML = contacts.length
+      ? contacts.map(c => `<tr>
+          <td style="font-weight:650;color:var(--ink)">${c.name}</td>
+          <td>${chanPill(c.channel)}</td>
+          <td style="color:var(--ink-3)">${c.phone || c.email || '—'}</td>
+          <td>${c.status === 'unsatisfied' ? '<span class="pill pill-amber">A signalé un problème</span>' : '<span class="pill pill-grey">Envoyé</span>'}</td>
+          <td style="color:var(--ink-3)">${timeAgo(c.created_at)}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="5" style="color:var(--ink-4)">Aucune invitation envoyée ce mois.</td></tr>';
+
+    const fbList = document.getElementById('fbList');
+    fbList.innerHTML = feedbacks.length ? feedbacks.map(f => {
+      const initial = (f.contact?.name || '?').charAt(0).toUpperCase();
+      const contactLine = f.contact?.phone || f.contact?.email || '';
+      return `<div class="fb-row ${f.handled ? 'done' : ''}" data-fid="${f.id}">
+        <span class="avatar" style="background:${f.handled ? '#0a8a5f' : '#9A4FE0'}">${initial}</span>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:10px"><span style="font-weight:650">${f.contact?.name || 'Client'}</span><span class="pill ${f.handled ? 'pill-green' : 'pill-amber'}">${f.handled ? 'Traité' : 'En attente'}</span></div>
+          <div class="rv-meta">${timeAgo(f.created_at)}${contactLine ? ' · ' + contactLine : ''}</div>
+          <p style="font-size:14px;color:var(--ink-2);margin-top:8px;line-height:1.55">${f.feedback || ''}</p>
+        </div>
+        ${f.handled ? '' : '<button class="btn btn-ghost-dark btn-sm js-fb">Marquer comme traité</button>'}
+      </div>`;
+    }).join('') : '<p style="color:var(--ink-4);font-size:14px">Aucun retour insatisfait pour le moment.</p>';
+  } catch (e) {}
+}
+document.addEventListener('shell:ready', loadInvites);
+
+document.getElementById('fbList').addEventListener('click', async e => {
+  const btn = e.target.closest('.js-fb');
+  if (!btn) return;
+  const row = btn.closest('.fb-row');
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await window.AnswerAPI.post('gating-resolve', { feedbackId: row.dataset.fid });
+    row.classList.add('done');
+    const pill = row.querySelector('.pill'); pill.className = 'pill pill-green'; pill.textContent = 'Traité';
+    btn.remove();
+  } catch (e) { btn.disabled = false; btn.textContent = 'Marquer comme traité'; }
+});
+</script>
+</body>
+</html>

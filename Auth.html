@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnswerAI — Connexion</title>
+<link rel="stylesheet" href="assets/base.css">
+<style>
+body { background: var(--navy); min-height: 100vh; display: flex; flex-direction: column; }
+.auth-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(700px 460px at 70% 12%, rgba(79,70,229,.32), transparent 60%), radial-gradient(560px 380px at 14% 90%, rgba(99,91,255,.16), transparent 60%); }
+.auth-nav { position: relative; z-index: 2; padding: 22px 28px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; color: #fff; }
+.brand .logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--indigo), #7C75F0); display: grid; place-items: center; box-shadow: var(--shadow-indigo); }
+.brand .logo svg { width: 17px; height: 17px; }
+
+.auth-wrap { position: relative; z-index: 2; flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.auth-card { width: 100%; max-width: 460px; background: #fff; border-radius: var(--r-xl); box-shadow: var(--shadow-lg); padding: 38px; }
+.auth-card.wide { max-width: 560px; }
+
+/* progress */
+.steps { display: flex; align-items: center; justify-content: center; gap: 0; margin-bottom: 32px; }
+.step { display: flex; align-items: center; gap: 10px; }
+.step .num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; background: #EEF0F3; color: var(--ink-4); transition: .2s; }
+.step .nm { font-size: 13px; font-weight: 600; color: var(--ink-4); white-space: nowrap; transition: .2s; }
+.step.active .num { background: var(--indigo); color: #fff; box-shadow: var(--shadow-indigo); }
+.step.active .nm { color: var(--ink); }
+.step.done .num { background: var(--green); color: #fff; }
+.step.done .nm { color: var(--ink-2); }
+.step-line { width: 34px; height: 2px; background: var(--line); margin: 0 10px; }
+.step.done + .step-line { background: var(--green); }
+@media (max-width: 560px) { .step .nm { display: none; } .step-line { width: 22px; } }
+
+.auth-title { font-size: 24px; text-align: center; letter-spacing: -.02em; }
+.auth-sub { text-align: center; color: var(--ink-3); margin-top: 10px; font-size: 15px; line-height: 1.55; }
+.auth-error { margin-top: 18px; background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; text-align: center; }
+
+.google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;
+  margin-top: 28px; background: #fff; border: 1px solid var(--line-strong); border-radius: 12px;
+  padding: 14px; font-size: 15px; font-weight: 600; color: #3c4043; transition: box-shadow .15s, border-color .15s;
+}
+.google-btn:hover { box-shadow: var(--shadow); border-color: var(--ink-4); }
+.google-btn svg { width: 20px; height: 20px; }
+.auth-secure { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 22px; color: var(--ink-4); font-size: 12.5px; }
+
+/* place search */
+.search-box { position: relative; margin-top: 26px; }
+.search-box input { width: 100%; padding: 14px 14px 14px 42px; border-radius: 12px; border: 1.5px solid var(--line-strong); font-size: 15px; }
+.search-box input:focus { outline: none; border-color: var(--indigo); }
+.search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--ink-4); }
+.estab-list { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; }
+.estab { border: 1.5px solid var(--line); border-radius: var(--r); padding: 14px 16px; cursor: pointer; transition: .15s; text-align: left; background: none; width: 100%; }
+.estab:hover { border-color: var(--indigo); box-shadow: var(--shadow); }
+.estab .nm { font-weight: 700; font-size: 14.5px; }
+.estab .addr { font-size: 12.5px; color: var(--ink-4); margin-top: 2px; }
+.estab-empty { text-align: center; color: var(--ink-4); font-size: 13.5px; padding: 18px 0; }
+
+.spinner { width: 38px; height: 38px; border: 3px solid var(--indigo-100); border-top-color: var(--indigo); border-radius: 50%; animation: spin .8s linear infinite; margin: 8px auto 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.hidden { display: none; }
+.fade-in { animation: fadeIn .35s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div class="auth-bg"></div>
+<div class="auth-nav">
+  <a class="brand" href="/">
+    <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.4 5.6L20 11l-5.6 2.4L12 19l-2.4-5.6L4 11l5.6-2.4L12 3z" fill="#fff"/></svg></span>
+    AnswerAI
+  </a>
+</div>
+
+<div class="auth-wrap">
+  <!-- STEP 1: connexion -->
+  <div class="auth-card" id="card1">
+    <div class="steps">
+      <div class="step active"><span class="num">1</span><span class="nm">Connexion Google</span></div>
+      <div class="step-line"></div>
+      <div class="step"><span class="num">2</span><span class="nm">Établissement</span></div>
+    </div>
+    <h1 class="auth-title">Connecter votre établissement Google</h1>
+    <p class="auth-sub">Connectez votre compte pour qu'AnswerAI puisse générer et publier vos réponses aux avis Google.</p>
+    <div id="errorBox" class="auth-error hidden"></div>
+    <a class="google-btn" href="/.netlify/functions/auth-login">
+      <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.57c2.08-1.92 3.27-4.74 3.27-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.76c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.09a6.6 6.6 0 0 1 0-4.18V7.07H2.18a11 11 0 0 0 0 9.86l3.66-2.84z"/><path fill="#EA4335" d="M12 4.75c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 1.46 14.97.5 12 .5A11 11 0 0 0 2.18 7.07l3.66 2.84C6.71 6.68 9.14 4.75 12 4.75z"/></svg>
+      Continuer avec Google
+    </a>
+    <div class="auth-secure">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="4" y="10" width="16" height="11" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8"/></svg>
+      OAuth sécurisé. Nous ne stockons jamais votre mot de passe.
+    </div>
+  </div>
+
+  <!-- STEP 2: recherche d'établissement -->
+  <div class="auth-card wide hidden" id="card2">
+    <div class="steps">
+      <div class="step done"><span class="num">✓</span><span class="nm">Connexion Google</span></div>
+      <div class="step-line"></div>
+      <div class="step active"><span class="num">2</span><span class="nm">Établissement</span></div>
+    </div>
+    <h1 class="auth-title">Quel est votre établissement ?</h1>
+    <p class="auth-sub">Recherchez votre fiche Google (nom + ville). AnswerAI s'en servira pour lire et répondre à vos avis.</p>
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <input type="text" id="searchInput" placeholder="Ex : Chez Luigi, Lyon">
+    </div>
+    <div class="estab-list" id="estabList"></div>
+  </div>
+
+  <!-- LOADING (sauvegarde du choix) -->
+  <div class="auth-card hidden" id="cardLoad">
+    <div class="spinner"></div>
+    <p class="auth-sub" style="margin-top:18px;">Configuration de votre établissement…</p>
+  </div>
+</div>
+
+<script src="assets/ui.js"></script>
+<script src="assets/api.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const card1 = document.getElementById('card1');
+const card2 = document.getElementById('card2');
+const cardLoad = document.getElementById('cardLoad');
+const errorBox = document.getElementById('errorBox');
+
+const ERRORS = {
+  access_denied: "Connexion annulée. Réessayez quand vous voulez.",
+  token_failed: "La connexion à Google a échoué. Réessayez.",
+  db_error: "Erreur technique pendant l'enregistrement. Réessayez.",
+};
+if (params.get('error')) {
+  errorBox.textContent = ERRORS[params.get('error')] || "Une erreur est survenue.";
+  errorBox.classList.remove('hidden');
+}
+
+if (params.get('step') === '2') {
+  card1.classList.add('hidden');
+  card2.classList.remove('hidden');
+  card2.classList.add('fade-in');
+}
+
+const searchInput = document.getElementById('searchInput');
+const estabList = document.getElementById('estabList');
+let searchTimer = null;
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  const q = searchInput.value.trim();
+  if (q.length < 3) { estabList.innerHTML = ''; return; }
+  searchTimer = setTimeout(() => runSearch(q), 350);
+});
+
+async function runSearch(q) {
+  try {
+    const results = await window.AnswerAPI.get('place-search?q=' + encodeURIComponent(q));
+    if (!results.length) {
+      estabList.innerHTML = '<div class="estab-empty">Aucun établissement trouvé. Essayez avec la ville.</div>';
+      return;
+    }
+    estabList.innerHTML = results.map(r => `
+      <button class="estab" data-place-id="${r.place_id}">
+        <div class="nm">${r.name}</div>
+        <div class="addr">${r.address}</div>
+      </button>`).join('');
+  } catch (e) {
+    estabList.innerHTML = '<div class="estab-empty">Recherche indisponible pour le moment.</div>';
+  }
+}
+
+estabList.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.estab');
+  if (!btn) return;
+  card2.classList.add('hidden');
+  cardLoad.classList.remove('hidden');
+  cardLoad.classList.add('fade-in');
+  try {
+    await window.AnswerAPI.post('place-save', { place_id: btn.dataset.placeId });
+    window.location.href = '/Dashboard.html';
+  } catch (e) {
+    cardLoad.classList.add('hidden');
+    card2.classList.remove('hidden');
+    errorBox.textContent = "Impossible d'enregistrer cet établissement. Réessayez.";
+    errorBox.classList.remove('hidden');
+  }
+});
+</script>
+</body>
+</html>

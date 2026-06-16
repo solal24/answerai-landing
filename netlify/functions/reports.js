@@ -45,10 +45,12 @@ exports.handler = async (event) => {
     ? (reviews.reduce((s, r) => s + (r.rating || 0), 0) / totalReviews).toFixed(1)
     : null;
 
-  // Stats gating
+  // Stats gating — un contact n'est marqué "unsatisfied" que s'il a cliqué le lien de
+  // feedback privé ; les autres sont supposés satisfaits (redirection directe vers Google,
+  // qui ne repasse jamais par notre backend).
   const gatingTotal = contacts?.length || 0;
   const gatingUnsatisfied = contacts?.filter(c => c.status === 'unsatisfied').length || 0;
-  const gatingSatisfied = contacts?.filter(c => c.status === 'satisfied').length || 0;
+  const gatingSatisfied = gatingTotal - gatingUnsatisfied;
 
   // Mots-clés les plus fréquents dans les avis
   const allText = (reviews || []).map(r => r.text || '').join(' ').toLowerCase();
@@ -71,6 +73,25 @@ exports.handler = async (event) => {
     text: r.text,
     responded: r.status === 'sent',
   }));
+
+  // Évolution hebdomadaire de la note sur le mois (uniquement pour le rapport mensuel)
+  let trend = null;
+  if (type === 'monthly') {
+    trend = [];
+    for (let i = 3; i >= 0; i--) {
+      const wEnd = new Date(now); wEnd.setDate(now.getDate() - i * 7);
+      const wStart = new Date(wEnd); wStart.setDate(wEnd.getDate() - 7);
+      const inWeek = (reviews || []).filter(r => {
+        const t = new Date(r.time);
+        return t >= wStart && t < wEnd;
+      });
+      trend.push({
+        label: `Sem. ${4 - i}`,
+        avgRating: inWeek.length ? +(inWeek.reduce((s, r) => s + (r.rating || 0), 0) / inWeek.length).toFixed(1) : null,
+        count: inWeek.length,
+      });
+    }
+  }
 
   // Actions recommandées
   const actions = [];
@@ -98,6 +119,7 @@ exports.handler = async (event) => {
       gating: { total: gatingTotal, satisfied: gatingSatisfied, unsatisfied: gatingUnsatisfied },
       keywords,
       topReviews,
+      trend,
       actions,
     }),
   };

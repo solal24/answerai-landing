@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnswerAI — Paramètres</title>
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/dashboard.css">
+<style>
+.set-card { background:#fff; border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow-sm); padding:26px; max-width:720px; }
+.set-row { display:flex; align-items:flex-start; justify-content:space-between; gap:24px; padding:18px 0; border-bottom:1px solid var(--line); }
+.set-row:last-child { border-bottom:none; }
+.set-row .info { flex:1; }
+.set-row .info .t { font-weight:650; font-size:15px; }
+.set-row .info .d { font-size:13.5px; color:var(--ink-3); margin-top:4px; line-height:1.5; }
+.set-row .ctrl { flex-shrink:0; min-width:200px; }
+.seg { display:inline-flex; background:#F1F2F5; border-radius:10px; padding:3px; gap:3px; }
+.seg button { padding:8px 14px; border-radius:8px; font-size:13.5px; font-weight:600; color:var(--ink-3); transition:.12s; }
+.seg button.on { background:#fff; color:var(--ink); box-shadow:var(--shadow-sm); }
+.tab-pane { display:none; } .tab-pane.active { display:block; }
+.save-msg { font-size:13px; font-weight:600; color:var(--green); opacity:0; transition:.25s; margin-right:auto; }
+.save-msg.show { opacity:1; }
+.save-row { margin-top:20px; display:flex; align-items:center; gap:12px; justify-content:flex-end; }
+.soon-card { max-width:720px; text-align:center; padding:46px 26px; color:var(--ink-4); font-size:14px; }
+.soon-card .tt { font-weight:650; color:var(--ink-2); font-size:15px; margin-bottom:6px; }
+</style>
+</head>
+<body data-page="parametres" data-title="Paramètres">
+<div class="app">
+  <div class="main">
+    <div class="content">
+      <div class="page-head">
+        <h1>Paramètres</h1>
+        <p class="desc">Configurez votre établissement et le comportement d'AnswerAI.</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="etab">Établissement</button>
+        <button class="tab" data-tab="ia">Réponses IA</button>
+        <button class="tab" data-tab="notif">Notifications</button>
+        <button class="tab" data-tab="abo">Abonnement</button>
+      </div>
+
+      <!-- ÉTABLISSEMENT -->
+      <div class="tab-pane active" data-pane="etab">
+        <div class="set-card">
+          <div class="set-row"><div class="info"><div class="t">Nom de l'établissement</div></div><div class="ctrl"><input class="input" id="estabName"></div></div>
+          <div class="set-row"><div class="info"><div class="t">Note Google</div><div class="d">Synchronisée automatiquement depuis votre fiche Google.</div></div><div class="ctrl" id="estabRating" style="font-weight:700;font-size:15px">—</div></div>
+          <div class="set-row"><div class="info"><div class="t">Lien d'avis Google</div><div class="d">Utilisé dans vos invitations de review gating pour rediriger les clients satisfaits.</div></div><div class="ctrl"><input class="input" id="estabReviewUrl"></div></div>
+          <div class="save-row"><span class="save-msg" id="etabMsg">Enregistré ✓</span><button class="btn btn-primary btn-sm" id="saveEtab">Enregistrer</button></div>
+        </div>
+        <p style="font-size:13px;color:var(--ink-4);margin-top:14px;max-width:720px">Horaires et spécialités ne sont pas encore configurables ici — utilisez les « Instructions personnalisées » de l'onglet Réponses IA pour guider l'IA sur ces points.</p>
+      </div>
+
+      <!-- RÉPONSES IA -->
+      <div class="tab-pane" data-pane="ia">
+        <div class="set-card">
+          <div class="set-row"><div class="info"><div class="t">Ton par défaut des réponses</div><div class="d">Le style adopté par l'IA pour rédiger vos réponses.</div></div>
+            <div class="ctrl"><div class="seg js-seg" id="toneSeg">
+              <button data-tone="professionnel">Professionnel</button>
+              <button data-tone="chaleureux">Chaleureux</button>
+              <button data-tone="formel">Formel</button>
+            </div></div></div>
+          <div class="set-row"><div class="info"><div class="t">Envoi automatique</div><div class="d">Activé : les réponses sont publiées sans validation. Désactivé : vous approuvez avant envoi.</div></div>
+            <div class="ctrl" style="min-width:auto"><div class="toggle js-toggle" id="autoSendToggle"></div></div></div>
+          <div class="set-row" style="display:block"><div class="info"><div class="t">Instructions personnalisées</div><div class="d" style="margin-bottom:12px">Consignes que l'IA suivra toujours lors de la rédaction (horaires, spécialités, ton à éviter…).</div></div>
+            <textarea class="textarea" id="customInstructions" style="min-height:100px"></textarea></div>
+          <div class="save-row"><span class="save-msg" id="iaMsg">Enregistré ✓</span><button class="btn btn-primary btn-sm" id="saveIa">Enregistrer</button></div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="tab-pane" data-pane="notif">
+        <div class="set-card soon-card">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" style="margin:0 auto 14px"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="#9AA1AE" stroke-width="1.6" stroke-linejoin="round"/><path d="M13.7 21a2 2 0 0 1-3.4 0" stroke="#9AA1AE" stroke-width="1.6"/></svg>
+          <div class="tt">Notifications bientôt disponibles</div>
+          Alertes par email (avis 1★, livraison des rapports, retours gating) arrivent prochainement.
+        </div>
+      </div>
+
+      <!-- ABONNEMENT -->
+      <div class="tab-pane" data-pane="abo">
+        <div class="set-card soon-card">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" style="margin:0 auto 14px"><rect x="2" y="5" width="20" height="14" rx="2" stroke="#9AA1AE" stroke-width="1.6"/><path d="M2 10h20" stroke="#9AA1AE" stroke-width="1.6"/></svg>
+          <div class="tt">Facturation bientôt disponible</div>
+          La gestion d'abonnement et de facturation arrive prochainement.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/ui.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/shell.js"></script>
+<script>
+document.querySelector('.tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); t.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === t.dataset.tab));
+});
+
+const toneSeg = document.getElementById('toneSeg');
+toneSeg.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  toneSeg.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+});
+const autoSendToggle = document.getElementById('autoSendToggle');
+autoSendToggle.addEventListener('click', () => autoSendToggle.classList.toggle('on'));
+
+function flash(el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2200); }
+
+document.addEventListener('shell:ready', () => {
+  const u = window.AnswerUser || {};
+  document.getElementById('estabName').value = u.establishment_name || '';
+  document.getElementById('estabRating').textContent = u.rating ? `${u.rating} ★ (${u.review_count ?? 0} avis)` : '—';
+  document.getElementById('estabReviewUrl').value = u.google_review_url || '';
+  const tone = u.tone || 'professionnel';
+  toneSeg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tone === tone));
+  autoSendToggle.classList.toggle('on', !!u.auto_send);
+  document.getElementById('customInstructions').value = u.custom_instructions || '';
+});
+
+document.getElementById('saveEtab').addEventListener('click', async () => {
+  const btn = document.getElementById('saveEtab');
+  btn.disabled = true;
+  try {
+    await window.AnswerAPI.post('settings-save', {
+      establishment_name: document.getElementById('estabName').value.trim(),
+      google_review_url: document.getElementById('estabReviewUrl').value.trim(),
+    });
+    flash(document.getElementById('etabMsg'));
+  } catch (e) {}
+  btn.disabled = false;
+});
+
+document.getElementById('saveIa').addEventListener('click', async () => {
+  const btn = document.getElementById('saveIa');
+  btn.disabled = true;
+  try {
+    const activeTone = toneSeg.querySelector('button.on');
+    await window.AnswerAPI.post('settings-save', {
+      tone: activeTone ? activeTone.dataset.tone : 'professionnel',
+      auto_send: autoSendToggle.classList.contains('on'),
+      custom_instructions: document.getElementById('customInstructions').value,
+    });
+    flash(document.getElementById('iaMsg'));
+  } catch (e) {}
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

@@ -30,6 +30,14 @@ exports.handler = async (event) => {
   const data = await res.json();
   const place = data.result || {};
 
+  // Garde la note/nombre d'avis à jour sur le profil
+  if (place.rating != null) {
+    await supabase
+      .from('users')
+      .update({ rating: place.rating, review_count: place.user_ratings_total ?? null })
+      .eq('id', session.userId);
+  }
+
   // Upsert les avis en base pour garder un historique
   const reviews = place.reviews || [];
   for (const r of reviews) {

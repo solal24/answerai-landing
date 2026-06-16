@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnswerAI — Votre avis</title>
+<link rel="stylesheet" href="assets/base.css">
+<style>
+body { background: var(--navy); min-height: 100vh; display: flex; flex-direction: column; }
+.fb-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(700px 460px at 70% 12%, rgba(79,70,229,.32), transparent 60%), radial-gradient(560px 380px at 14% 90%, rgba(99,91,255,.16), transparent 60%); }
+.fb-nav { position: relative; z-index: 2; padding: 22px 28px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; color: #fff; }
+.brand .logo { width: 30px; height: 30px; border-radius: 8px; background: linear-gradient(135deg, var(--indigo), #7C75F0); display: grid; place-items: center; box-shadow: var(--shadow-indigo); }
+.brand .logo svg { width: 17px; height: 17px; }
+
+.fb-wrap { position: relative; z-index: 2; flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.fb-card { width: 100%; max-width: 480px; background: #fff; border-radius: var(--r-xl); box-shadow: var(--shadow-lg); padding: 38px; text-align: center; }
+.fb-icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 18px; }
+.fb-title { font-size: 22px; letter-spacing: -.02em; }
+.fb-sub { color: var(--ink-3); margin-top: 10px; font-size: 14.5px; line-height: 1.55; }
+.fb-card textarea.textarea { width: 100%; margin-top: 22px; min-height: 130px; text-align: left; border-radius: 12px; border: 1.5px solid var(--line-strong); padding: 14px; font-size: 14.5px; font-family: inherit; resize: vertical; }
+.fb-card textarea.textarea:focus { outline: none; border-color: var(--indigo); }
+.fb-error { margin-top: 16px; background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; border-radius: 10px; padding: 12px 14px; font-size: 13.5px; }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="fb-bg"></div>
+<div class="fb-nav">
+  <a class="brand" href="/">
+    <span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l2.4 5.6L20 11l-5.6 2.4L12 19l-2.4-5.6L4 11l5.6-2.4L12 3z" fill="#fff"/></svg></span>
+    AnswerAI
+  </a>
+</div>
+
+<div class="fb-wrap">
+  <!-- FORM -->
+  <div class="fb-card" id="cardForm">
+    <div class="fb-icon" style="background:var(--amber-50)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#F59E0B" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </div>
+    <h1 class="fb-title">Nous sommes désolés</h1>
+    <p class="fb-sub">Dites-nous ce qui n'a pas fonctionné. Votre message arrive directement et en privé à l'établissement, pas sur Google.</p>
+    <textarea class="textarea" id="feedbackText" placeholder="Qu'est-ce qui aurait pu être mieux ?"></textarea>
+    <div id="errorBox" class="fb-error hidden"></div>
+    <button class="btn btn-primary btn-block" id="sendBtn" style="margin-top:18px">Envoyer mon retour</button>
+  </div>
+
+  <!-- THANKS -->
+  <div class="fb-card hidden" id="cardThanks">
+    <div class="fb-icon" style="background:var(--green-50)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 12l5 5L20 6" stroke="#10B981" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h1 class="fb-title">Merci pour votre retour</h1>
+    <p class="fb-sub">L'établissement a été notifié et reviendra vers vous si nécessaire.</p>
+  </div>
+
+  <!-- INVALID -->
+  <div class="fb-card hidden" id="cardInvalid">
+    <div class="fb-icon" style="background:var(--red-50)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M12 3l9 16H3l9-16z" stroke="#EF4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h1 class="fb-title">Lien invalide ou expiré</h1>
+    <p class="fb-sub">Ce lien n'est plus valable. Contactez directement l'établissement si vous souhaitez lui faire un retour.</p>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const token = params.get('t');
+const cardForm = document.getElementById('cardForm');
+const cardThanks = document.getElementById('cardThanks');
+const cardInvalid = document.getElementById('cardInvalid');
+const errorBox = document.getElementById('errorBox');
+
+if (!token) {
+  cardForm.classList.add('hidden');
+  cardInvalid.classList.remove('hidden');
+}
+
+document.getElementById('sendBtn').addEventListener('click', async () => {
+  const feedback = document.getElementById('feedbackText').value.trim();
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true; btn.textContent = 'Envoi…';
+  try {
+    const res = await fetch('/.netlify/functions/gating-feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, feedback }),
+    });
+    if (res.status === 401) {
+      cardForm.classList.add('hidden');
+      cardInvalid.classList.remove('hidden');
+      return;
+    }
+    if (!res.ok) throw new Error('failed');
+    cardForm.classList.add('hidden');
+    cardThanks.classList.remove('hidden');
+  } catch (e) {
+    errorBox.textContent = "Une erreur est survenue. Réessayez.";
+    errorBox.classList.remove('hidden');
+    btn.disabled = false; btn.textContent = 'Envoyer mon retour';
+  }
+});
+</script>
+</body>
+</html>

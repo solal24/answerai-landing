@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnswerAI — Rapports</title>
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/dashboard.css">
+<style>
+.report { background:#fff; border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow-sm); overflow:hidden; max-width:760px; }
+.report-hd { background:var(--navy); color:#fff; padding:28px 30px; }
+.report-hd .kicker { font-size:13px; font-weight:600; color:rgba(255,255,255,.6); letter-spacing:.02em; }
+.report-hd h2 { font-size:24px; margin-top:6px; letter-spacing:-.02em; }
+.report-sec { padding:26px 30px; border-bottom:1px solid var(--line); }
+.report-sec:last-of-type { border-bottom:none; }
+.report-sec h3 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-3); margin-bottom:16px; }
+.r-stats { display:flex; gap:14px; flex-wrap:wrap; }
+.r-stat { flex:1; min-width:130px; background:var(--bg); border:1px solid var(--line); border-radius:var(--r); padding:16px; }
+.r-stat .v { font-size:28px; font-weight:800; letter-spacing:-.03em; }
+.r-stat .l { font-size:12.5px; color:var(--ink-3); margin-top:3px; }
+.rv-mini { padding:13px 0; }
+.rv-mini + .rv-mini { border-top:1px solid var(--line); }
+.rv-mini .who { font-weight:650; font-size:13.5px; }
+.rv-mini .q { font-size:13.5px; color:var(--ink-2); font-style:italic; margin-top:4px; line-height:1.5; }
+.action-item { display:flex; gap:12px; padding:13px 14px; background:var(--indigo-50); border:1px solid var(--indigo-100); border-radius:var(--r); }
+.action-item + .action-item { margin-top:10px; }
+.action-item .n { width:24px;height:24px;border-radius:50%;background:var(--indigo);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;flex-shrink:0; }
+.action-item p { font-size:14px; color:var(--ink-2); line-height:1.5; }
+.gating-mini { display:flex; gap:14px; }
+.gating-mini .gm { flex:1; text-align:center; background:var(--bg); border:1px solid var(--line); border-radius:var(--r); padding:14px; }
+.gating-mini .gm .v { font-size:24px; font-weight:800; }
+.gating-mini .gm .l { font-size:12px; color:var(--ink-3); }
+.report-foot { padding:20px 30px; display:flex; gap:10px; background:#FbFbFc; align-items:center; }
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+.soon-empty { max-width:760px; text-align:center; padding:50px 30px; color:var(--ink-4); font-size:14px; }
+</style>
+</head>
+<body data-page="rapports" data-title="Rapports">
+<div class="app">
+  <div class="main">
+    <div class="content">
+      <div class="page-head">
+        <h1>Rapports</h1>
+        <p class="desc">Vos synthèses automatiques, prêtes à lire et à partager.</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="hebdo">Hebdomadaire</button>
+        <button class="tab" data-tab="mensuel">Mensuel</button>
+        <button class="tab" data-tab="histo">Historique</button>
+      </div>
+
+      <!-- WEEKLY -->
+      <div class="tab-pane active" data-pane="hebdo">
+        <div id="weeklyReport"><p style="color:var(--ink-4);font-size:14px">Chargement…</p></div>
+      </div>
+
+      <!-- MONTHLY -->
+      <div class="tab-pane" data-pane="mensuel">
+        <div id="monthlyReport"><p style="color:var(--ink-4);font-size:14px">Chargement…</p></div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="tab-pane" data-pane="histo">
+        <div class="report soon-empty">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" style="margin:0 auto 14px"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#9AA1AE" stroke-width="1.6"/><path d="M3 9h18M8 2v4M16 2v4" stroke="#9AA1AE" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <div style="font-weight:650;color:var(--ink-2);font-size:15px;margin-bottom:6px">Historique bientôt disponible</div>
+          L'archivage de vos rapports précédents arrive prochainement. En attendant, consultez les onglets Hebdomadaire et Mensuel.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/ui.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/shell.js"></script>
+<script src="assets/charts.js"></script>
+<script>
+document.querySelector('.tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab'); if (!t) return;
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); t.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === t.dataset.tab));
+});
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function reportFoot() {
+  return `<div class="report-foot">
+    <button class="btn btn-ghost-dark btn-sm" disabled style="opacity:.5;cursor:not-allowed"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Télécharger en PDF</button>
+    <button class="btn btn-ghost-dark btn-sm" disabled style="opacity:.5;cursor:not-allowed">Envoyer par email</button>
+    <span class="pill pill-grey">Bientôt disponible</span>
+  </div>`;
+}
+
+function actionsHtml(actions) {
+  return (actions || []).map((a, i) => `<div class="action-item"><span class="n">${i + 1}</span><p>${a}</p></div>`).join('');
+}
+
+function gatingMiniHtml(g) {
+  return `<div class="gating-mini">
+    <div class="gm"><div class="v">${g.total}</div><div class="l">Invitations</div></div>
+    <div class="gm"><div class="v" style="color:var(--green)">${g.satisfied}</div><div class="l">Redirigés Google</div></div>
+    <div class="gm"><div class="v" style="color:#b06d05">${g.unsatisfied}</div><div class="l">En interne</div></div>
+  </div>`;
+}
+
+function topReviewsHtml(reviews) {
+  if (!reviews?.length) return '<p style="font-size:13.5px;color:var(--ink-4)">Aucun avis sur la période.</p>';
+  return reviews.map(r => `<div class="rv-mini">
+    <div class="who">${r.author || 'Client'} · ${r.rating}★ ${r.responded ? '<span class="pill pill-green" style="margin-left:6px">Répondu</span>' : ''}</div>
+    <div class="q">« ${r.text || ''} »</div>
+  </div>`).join('');
+}
+
+async function loadWeekly() {
+  try {
+    const r = await window.AnswerAPI.get('reports?type=weekly');
+    const estab = window.AnswerUser?.establishment_name || '';
+    document.getElementById('weeklyReport').innerHTML = `
+      <div class="report">
+        <div class="report-hd">
+          <div class="kicker">Rapport hebdomadaire · AnswerAI</div>
+          <h2>${fmtDate(r.period.start)} — ${fmtDate(r.period.end)}${estab ? ' — ' + estab : ''}</h2>
+        </div>
+        <div class="report-sec">
+          <h3>Ce qui s'est passé cette semaine</h3>
+          <div class="r-stats">
+            <div class="r-stat"><div class="v">${r.reviews.avgRating ?? '—'}</div><div class="l">Note moyenne</div></div>
+            <div class="r-stat"><div class="v">${r.reviews.total}</div><div class="l">Nouveaux avis</div></div>
+            <div class="r-stat"><div class="v">${r.reviews.total ? Math.round(100 * r.reviews.responded / r.reviews.total) + '%' : '—'}</div><div class="l">Taux de réponse</div></div>
+          </div>
+        </div>
+        <div class="report-sec">
+          <h3>Mots-clés les plus fréquents</h3>
+          <div class="kw-bars" id="kwBarsWeek">${r.keywords?.length ? '' : '<p style="font-size:13.5px;color:var(--ink-4)">Pas encore assez d\'avis pour une analyse.</p>'}</div>
+        </div>
+        <div class="report-sec">
+          <h3>Avis récents</h3>
+          ${topReviewsHtml(r.topReviews)}
+        </div>
+        <div class="report-sec">
+          <h3>Actions recommandées</h3>
+          ${actionsHtml(r.actions)}
+        </div>
+        <div class="report-sec">
+          <h3>Review gating cette semaine</h3>
+          ${gatingMiniHtml(r.gating)}
+        </div>
+        ${reportFoot()}
+      </div>`;
+    if (r.keywords?.length) {
+      const max = Math.max(...r.keywords.map(k => k.count));
+      AnswerCharts.kwBars(document.getElementById('kwBarsWeek'), r.keywords.map(k => ({
+        label: k.word.charAt(0).toUpperCase() + k.word.slice(1),
+        value: Math.round(100 * k.count / max),
+        tone: 'pos',
+      })));
+    }
+  } catch (e) {
+    document.getElementById('weeklyReport').innerHTML = '<p style="color:var(--ink-4);font-size:14px">Impossible de charger le rapport.</p>';
+  }
+}
+
+async function loadMonthly() {
+  try {
+    const r = await window.AnswerAPI.get('reports?type=monthly');
+    const estab = window.AnswerUser?.establishment_name || '';
+    document.getElementById('monthlyReport').innerHTML = `
+      <div class="report">
+        <div class="report-hd">
+          <div class="kicker">Rapport mensuel · AnswerAI</div>
+          <h2>${fmtDate(r.period.start)} — ${fmtDate(r.period.end)}${estab ? ' — ' + estab : ''}</h2>
+        </div>
+        <div class="report-sec">
+          <h3>Vue d'ensemble du mois</h3>
+          <div class="r-stats">
+            <div class="r-stat"><div class="v">${r.reviews.avgRating ?? '—'}</div><div class="l">Note moyenne</div></div>
+            <div class="r-stat"><div class="v">${r.reviews.total}</div><div class="l">Nouveaux avis</div></div>
+            <div class="r-stat"><div class="v">${r.reviews.total ? Math.round(100 * r.reviews.responded / r.reviews.total) + '%' : '—'}</div><div class="l">Taux de réponse</div></div>
+            <div class="r-stat"><div class="v">${r.gating.unsatisfied}</div><div class="l">Filtrés (gating)</div></div>
+          </div>
+        </div>
+        <div class="report-sec">
+          <h3>Évolution de la note sur le mois</h3>
+          <div id="monthChart">${''}</div>
+        </div>
+        <div class="report-sec">
+          <h3>Mots-clés les plus fréquents</h3>
+          <div class="kw-bars" id="kwBarsMonth">${r.keywords?.length ? '' : '<p style="font-size:13.5px;color:var(--ink-4)">Pas encore assez d\'avis pour une analyse.</p>'}</div>
+        </div>
+        <div class="report-sec">
+          <h3>Actions recommandées</h3>
+          ${actionsHtml(r.actions)}
+        </div>
+        ${reportFoot()}
+      </div>`;
+
+    const usable = (r.trend || []).filter(w => w.count > 0 && w.avgRating != null);
+    const chartEl = document.getElementById('monthChart');
+    if (usable.length >= 2) {
+      AnswerCharts.lineLabeled(chartEl, usable.map(w => w.avgRating), usable.map(w => w.label), { min: 1, max: 5 });
+    } else {
+      chartEl.innerHTML = '<p style="font-size:13.5px;color:var(--ink-4)">Pas encore assez d\'avis répartis sur le mois pour tracer une tendance.</p>';
+    }
+
+    if (r.keywords?.length) {
+      const max = Math.max(...r.keywords.map(k => k.count));
+      AnswerCharts.kwBars(document.getElementById('kwBarsMonth'), r.keywords.map(k => ({
+        label: k.word.charAt(0).toUpperCase() + k.word.slice(1),
+        value: Math.round(100 * k.count / max),
+        tone: 'pos',
+      })));
+    }
+  } catch (e) {
+    document.getElementById('monthlyReport').innerHTML = '<p style="color:var(--ink-4);font-size:14px">Impossible de charger le rapport.</p>';
+  }
+}
+
+document.addEventListener('shell:ready', () => { loadWeekly(); loadMonthly(); });
+</script>
+</body>
+</html>

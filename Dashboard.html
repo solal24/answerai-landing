@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnswerAI — Vue d'ensemble</title>
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/dashboard.css">
+</head>
+<body data-page="dashboard" data-title="Vue d'ensemble">
+<div class="app">
+  <div class="main">
+    <div class="content">
+      <div class="page-head">
+        <h1>Bonjour 👋 Voici votre semaine</h1>
+        <p class="desc" id="pageDesc">Chargement de votre réputation…</p>
+      </div>
+
+      <!-- KPI ROW -->
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="k-top">
+            <span class="k-lbl">Note moyenne</span>
+            <span class="k-ico" style="background:var(--amber-50)"><svg viewBox="0 0 24 24"><path fill="#F59E0B" d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.7L12 17.3 5.8 20.8l1.6-6.7L2.2 9.5l6.9-.6L12 2z"/></svg></span>
+          </div>
+          <div class="k-val" id="kRating">—</div>
+        </div>
+        <div class="kpi">
+          <div class="k-top">
+            <span class="k-lbl">Avis ce mois</span>
+            <span class="k-ico" style="background:var(--indigo-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#4F46E5" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="k-val" id="kCount">—</div>
+        </div>
+        <div class="kpi">
+          <div class="k-top">
+            <span class="k-lbl">Taux de réponse</span>
+            <span class="k-ico" style="background:var(--green-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.7-.9L3 20.5l1.5-5.2A8.4 8.4 0 1 1 21 11.5z" stroke="#10B981" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="k-val" id="kRate">—</div>
+        </div>
+        <div class="kpi">
+          <div class="k-top">
+            <span class="k-lbl">Avis filtrés (gating)</span>
+            <span class="k-ico" style="background:var(--amber-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5z" stroke="#F59E0B" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="k-val" id="kGating">—</div>
+          <div class="k-trend trend-amber">insatisfaits traités en interne</div>
+        </div>
+      </div>
+
+      <!-- TWO COLUMNS -->
+      <div class="two-col" style="margin-top:22px;">
+        <!-- LEFT -->
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Avis récents à traiter</h2>
+            <a class="link-indigo" href="Avis.html">Voir tous les avis →</a>
+          </div>
+          <div class="panel-body" id="reviewList"><p style="color:var(--ink-4);font-size:14px">Chargement…</p></div>
+        </div>
+
+        <!-- RIGHT -->
+        <div style="display:flex; flex-direction:column; gap:22px;">
+          <!-- keyword bars -->
+          <div class="panel">
+            <div class="panel-head"><h2>Mots clés fréquents</h2><span class="pill pill-grey">30 derniers jours</span></div>
+            <div class="panel-body">
+              <div class="kw-bars" id="kwBars"><p style="color:var(--ink-4);font-size:13px">Pas encore assez d'avis pour une analyse.</p></div>
+            </div>
+          </div>
+          <!-- actions recommandées -->
+          <div class="panel">
+            <div class="panel-head"><h2>Actions recommandées</h2></div>
+            <div class="panel-body" id="actionsBox"></div>
+          </div>
+          <!-- next report -->
+          <div class="panel" style="background:var(--navy); border:none; color:#fff;">
+            <div class="panel-body">
+              <div style="display:flex; align-items:center; gap:10px; font-weight:700; font-size:15px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#A9A3FF" stroke-width="1.7"/><path d="M3 9h18M8 2v4M16 2v4" stroke="#A9A3FF" stroke-width="1.7" stroke-linecap="round"/></svg>
+                Rapports
+              </div>
+              <p style="color:rgba(255,255,255,.62); font-size:13.5px; margin-top:10px; line-height:1.5;">Consultez votre synthèse hebdomadaire et mensuelle : évolution de votre note, tendances et actions prioritaires.</p>
+              <a class="btn btn-primary btn-sm" href="Rapports.html" style="margin-top:16px;">Voir les rapports</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="assets/ui.js"></script>
+<script src="assets/api.js"></script>
+<script src="assets/shell.js"></script>
+<script src="assets/charts.js"></script>
+<script>
+function starsHtml(n) {
+  n = Math.round(n || 0);
+  let s = '';
+  for (let i = 1; i <= 5; i++) s += `<svg viewBox="0 0 24 24" width="15" height="15"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.7L12 17.3 5.8 20.8l1.6-6.7L2.2 9.5l6.9-.6L12 2z" fill="${i<=n?'var(--amber)':'#DfE2E8'}"/></svg>`;
+  return s;
+}
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const h = Math.floor(diffMs / 3600000);
+  if (h < 1) return "à l'instant";
+  if (h < 24) return `il y a ${h} h`;
+  return `il y a ${Math.floor(h / 24)} j`;
+}
+
+function reviewCard(r) {
+  const initial = (r.author_name || '?').charAt(0).toUpperCase();
+  const hasAi = !!r.ai_response;
+  const isSent = r.status === 'sent';
+  let pill, actions = '';
+  if (isSent) {
+    pill = '<span class="pill pill-green">Répondu par IA</span>';
+  } else if (hasAi) {
+    pill = '<span class="pill pill-amber">En attente d\'approbation</span>';
+    actions = `<div class="rv-ai">
+      <div class="lbl"><span class="dot" style="background:var(--indigo)"></span> Réponse générée par l'IA</div>
+      <div class="txt">${r.ai_response}</div>
+      <div class="rv-actions">
+        <button class="btn btn-green btn-sm js-approve" data-id="${r.id}">✓ Approuver</button>
+        <a class="btn btn-ghost-dark btn-sm" href="Avis.html">Modifier</a>
+      </div>
+    </div>`;
+  } else {
+    pill = '<span class="pill pill-red">Non répondu</span>';
+    actions = `<div class="rv-actions"><button class="btn btn-primary btn-sm js-generate" data-id="${r.id}">Générer une réponse IA</button></div>`;
+  }
+  return `<div class="rv" data-id="${r.id}">
+    <div class="rv-top">
+      <span class="avatar" style="background:#4F46E5">${initial}</span>
+      <div><div class="rv-name">${r.author_name || 'Client'}</div><div class="rv-meta">${timeAgo(r.time)} · Google</div></div>
+      <span class="stars" style="margin-left:auto">${starsHtml(r.rating)}</span>
+      ${pill}
+    </div>
+    <p class="rv-text rv-clamp">${r.text || ''}</p>
+    ${actions}
+  </div>`;
+}
+
+async function load() {
+  let reviewsData, report;
+  try {
+    [reviewsData, report] = await Promise.all([
+      window.AnswerAPI.get('reviews'),
+      window.AnswerAPI.get('reports?type=monthly'),
+    ]);
+  } catch (e) {
+    return;
+  }
+
+  const estabName = window.AnswerUser?.establishment_name || 'votre établissement';
+  document.getElementById('pageDesc').textContent = `Aperçu de la réputation de ${estabName}`;
+
+  document.getElementById('kRating').innerHTML = reviewsData.rating ? `${reviewsData.rating}<span class="u"> / 5</span>` : '—';
+  document.getElementById('kCount').textContent = report.reviews.total;
+  document.getElementById('kRate').innerHTML = report.reviews.total ? `${Math.round(100 * report.reviews.responded / report.reviews.total)}<span class="u">%</span>` : '—';
+  document.getElementById('kGating').textContent = report.gating.unsatisfied;
+
+  const list = reviewsData.reviews || [];
+  document.getElementById('reviewList').innerHTML = list.length
+    ? list.slice(0, 5).map(reviewCard).join('')
+    : '<p style="color:var(--ink-4);font-size:14px">Aucun avis pour le moment.</p>';
+
+  if (report.keywords?.length) {
+    const max = Math.max(...report.keywords.map(k => k.count));
+    document.getElementById('kwBars').innerHTML = '';
+    AnswerCharts.kwBars(document.getElementById('kwBars'), report.keywords.map(k => ({
+      label: k.word.charAt(0).toUpperCase() + k.word.slice(1),
+      value: Math.round(100 * k.count / max),
+      tone: 'pos',
+    })));
+  }
+
+  document.getElementById('actionsBox').innerHTML = report.actions.map(a => `<p style="font-size:14px;color:var(--ink-2);line-height:1.55;margin-bottom:10px">• ${a}</p>`).join('');
+}
+
+document.addEventListener('shell:ready', load);
+
+document.getElementById('reviewList').addEventListener('click', async (e) => {
+  const approve = e.target.closest('.js-approve');
+  const generate = e.target.closest('.js-generate');
+  if (approve) {
+    approve.disabled = true; approve.textContent = '…';
+    try { await window.AnswerAPI.post('approve', { reviewId: approve.dataset.id }); load(); } catch (e) { approve.disabled = false; }
+  } else if (generate) {
+    generate.disabled = true; generate.textContent = 'Génération…';
+    try { await window.AnswerAPI.post('generate', { reviewId: generate.dataset.id }); load(); } catch (e) { generate.disabled = false; generate.textContent = 'Générer une réponse IA'; }
+  }
+});
+</script>
+</body>
+</html>
