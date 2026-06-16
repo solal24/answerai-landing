@@ -25,7 +25,7 @@ exports.handler = async (event) => {
   const googleReviewUrl = `https://search.google.com/local/writereview?placeid=${place_id}`;
 
   const supabase = getSupabase();
-  await supabase
+  const { error } = await supabase
     .from('users')
     .update({
       place_id,
@@ -36,6 +36,11 @@ exports.handler = async (event) => {
       updated_at: new Date().toISOString(),
     })
     .eq('id', session.userId);
+
+  if (error) {
+    console.error('place-save.js update error:', error);
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Database error' }) };
+  }
 
   return {
     statusCode: 200,

@@ -91,7 +91,18 @@
       };
       window.AnswerUser = user;
     } catch (e) {
-      return; // AnswerAPI.get already redirects to /Auth.html on 401
+      // AnswerAPI.get redirige déjà vers /Auth.html sur 401 ; ici on couvre les autres
+      // erreurs (ex. panne base de données) qui sinon laissaient la page figée sans indice.
+      console.error('shell.js: échec du chargement de /me', e);
+      main.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; height:100%; padding:40px; text-align:center;">
+          <p style="font-size:15px; color:var(--ink-2); font-weight:600;">Impossible de charger votre espace AnswerAI.</p>
+          <p style="font-size:13.5px; color:var(--ink-4); max-width:420px;">${(e && e.message) || 'Une erreur est survenue.'}</p>
+          <button class="btn btn-primary btn-sm" id="shellRetry">Réessayer</button>
+        </div>`;
+      const retryBtn = document.getElementById('shellRetry');
+      if (retryBtn) retryBtn.addEventListener('click', () => window.location.reload());
+      return;
     }
 
     app.insertAdjacentHTML('afterbegin', buildSidebar(active, estab));

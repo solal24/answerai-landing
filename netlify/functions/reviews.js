@@ -32,16 +32,17 @@ exports.handler = async (event) => {
 
   // Garde la note/nombre d'avis à jour sur le profil
   if (place.rating != null) {
-    await supabase
+    const { error: ratingError } = await supabase
       .from('users')
       .update({ rating: place.rating, review_count: place.user_ratings_total ?? null })
       .eq('id', session.userId);
+    if (ratingError) console.error('reviews.js rating update error:', ratingError);
   }
 
   // Upsert les avis en base pour garder un historique
   const reviews = place.reviews || [];
   for (const r of reviews) {
-    await supabase
+    const { error: upsertError } = await supabase
       .from('reviews')
       .upsert({
         user_id: session.userId,
@@ -52,15 +53,21 @@ exports.handler = async (event) => {
         text: r.text,
         time: new Date(r.time * 1000).toISOString(),
       }, { onConflict: 'user_id,google_review_id', ignoreDuplicates: true });
+    if (upsertError) console.error('reviews.js upsert error:', upsertError);
   }
 
   // Retourne les avis avec leur statut depuis la BDD
-  const { data: dbReviews } = await supabase
+  const { data: dbReviews, error: selectError } = await supabase
     .from('reviews')
     .select('*')
     .eq('user_id', session.userId)
     .order('time', { ascending: false })
     .limit(20);
+
+  if (selectError) {
+    console.error('reviews.js select error:', selectError);
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Database error' }) };
+  }
 
   return {
     statusCode: 200,

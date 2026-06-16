@@ -8,11 +8,16 @@ exports.handler = async (event) => {
   }
 
   const supabase = getSupabase();
-  const { data: user } = await supabase
+  const { data: user, error } = await supabase
     .from('users')
-    .select('id, email, name, picture, establishment_name, place_id, google_review_url, rating, review_count, tone, auto_send, custom_instructions')
+    .select('id, email, name, picture, establishment_name, place_id, google_review_url, rating, review_count, tone, auto_send, auto_send_delay_hours, custom_instructions')
     .eq('id', session.userId)
     .single();
+
+  if (error) {
+    console.error('me.js select error:', error);
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Database error' }) };
+  }
 
   if (!user) {
     return { statusCode: 404, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'User not found' }) };

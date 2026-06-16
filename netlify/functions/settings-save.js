@@ -10,7 +10,7 @@ exports.handler = async (event) => {
   const { tone, auto_send, auto_send_delay_hours, custom_instructions, google_review_url, establishment_name } = JSON.parse(event.body || '{}');
 
   const supabase = getSupabase();
-  await supabase
+  const { error } = await supabase
     .from('users')
     .update({
       ...(tone !== undefined && { tone }),
@@ -22,6 +22,11 @@ exports.handler = async (event) => {
       updated_at: new Date().toISOString(),
     })
     .eq('id', session.userId);
+
+  if (error) {
+    console.error('settings-save.js update error:', error);
+    return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Database error' }) };
+  }
 
   return {
     statusCode: 200,

@@ -153,6 +153,10 @@ async function load() {
       window.AnswerAPI.get('reports?type=monthly'),
     ]);
   } catch (e) {
+    console.error('Dashboard.html: échec du chargement des données', e);
+    document.getElementById('reviewList').innerHTML = `<p style="color:var(--ink-4);font-size:14px">Impossible de charger les avis (${(e && e.message) || 'erreur inconnue'}). <a href="#" id="dashRetry" class="link-indigo">Réessayer</a></p>`;
+    const retry = document.getElementById('dashRetry');
+    if (retry) retry.addEventListener('click', (ev) => { ev.preventDefault(); load(); });
     return;
   }
 

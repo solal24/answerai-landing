@@ -15,15 +15,16 @@ async function syncReviewsForUser(supabase, user) {
   const place = data.result || {};
 
   if (place.rating != null) {
-    await supabase
+    const { error: ratingError } = await supabase
       .from('users')
       .update({ rating: place.rating, review_count: place.user_ratings_total ?? null })
       .eq('id', user.id);
+    if (ratingError) console.error(`auto-respond-scheduled.js rating update error for user ${user.id}:`, ratingError);
   }
 
   const reviews = place.reviews || [];
   for (const r of reviews) {
-    await supabase
+    const { error: upsertError } = await supabase
       .from('reviews')
       .upsert({
         user_id: user.id,
@@ -34,6 +35,7 @@ async function syncReviewsForUser(supabase, user) {
         text: r.text,
         time: new Date(r.time * 1000).toISOString(),
       }, { onConflict: 'user_id,google_review_id', ignoreDuplicates: true });
+    if (upsertError) console.error(`auto-respond-scheduled.js upsert error for user ${user.id}:`, upsertError);
   }
 }
 
@@ -45,12 +47,17 @@ async function processUser(supabase, user) {
   const delayHours = user.auto_send_delay_hours ?? 2;
   const cutoff = new Date(Date.now() - delayHours * 3600 * 1000).toISOString();
 
-  const { data: pending } = await supabase
+  const { data: pending, error: pendingError } = await supabase
     .from('reviews')
     .select('*')
     .eq('user_id', user.id)
     .eq('status', 'pending')
     .lte('created_at', cutoff);
+
+  if (pendingError) {
+    console.error(`auto-respond-scheduled.js pending select error for user ${user.id}:`, pendingError);
+    return;
+  }
 
   for (const review of pending || []) {
     let finalResponse = review.ai_response;
@@ -64,7 +71,7 @@ async function processUser(supabase, user) {
       });
     }
 
-    await supabase
+    const { error: sentError } = await supabase
       .from('reviews')
       .update({
         ai_response: finalResponse,
@@ -72,16 +79,22 @@ async function processUser(supabase, user) {
         sent_at: new Date().toISOString(),
       })
       .eq('id', review.id);
+    if (sentError) console.error(`auto-respond-scheduled.js sent update error for review ${review.id}:`, sentError);
   }
 }
 
 const handler = async () => {
   const supabase = getSupabase();
 
-  const { data: users } = await supabase
+  const { data: users, error: usersError } = await supabase
     .from('users')
     .select('*')
     .eq('auto_send', true);
+
+  if (usersError) {
+    console.error('auto-respond-scheduled.js users select error:', usersError);
+    return { statusCode: 500 };
+  }
 
   for (const user of users || []) {
     try {
