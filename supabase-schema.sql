@@ -21,6 +21,7 @@ CREATE TABLE users (
   -- Paramètres IA
   tone            TEXT DEFAULT 'professionnel', -- professionnel | chaleureux | formel
   auto_send       BOOLEAN DEFAULT false,
+  auto_send_delay_hours NUMERIC DEFAULT 2,
   custom_instructions TEXT,
   -- Timestamps
   created_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -77,3 +78,8 @@ CREATE INDEX idx_gating_status ON gating_contacts(user_id, status);
 -- ============================================================
 ALTER TABLE users ADD COLUMN IF NOT EXISTS rating NUMERIC;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS review_count INTEGER;
+
+-- ============================================================
+-- MIGRATION — délai avant envoi automatique des réponses (16/06/2026)
+-- ============================================================
+ALTER TABLE users ADD COLUMN IF NOT EXISTS auto_send_delay_hours NUMERIC DEFAULT 2;

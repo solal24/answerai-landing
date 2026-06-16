@@ -63,6 +63,16 @@
             </div></div></div>
           <div class="set-row"><div class="info"><div class="t">Envoi automatique</div><div class="d">Activé : les réponses sont publiées sans validation. Désactivé : vous approuvez avant envoi.</div></div>
             <div class="ctrl" style="min-width:auto"><div class="toggle js-toggle" id="autoSendToggle"></div></div></div>
+          <div class="set-row" id="delayRow" style="display:none"><div class="info"><div class="t">Délai avant envoi automatique</div><div class="d">Temps d'attente après réception de l'avis avant l'envoi automatique de la réponse IA.</div></div>
+            <div class="ctrl"><select class="select" id="autoSendDelay">
+              <option value="0">Immédiat</option>
+              <option value="1">1 heure</option>
+              <option value="2">2 heures</option>
+              <option value="6">6 heures</option>
+              <option value="12">12 heures</option>
+              <option value="24">24 heures</option>
+              <option value="48">48 heures</option>
+            </select></div></div>
           <div class="set-row" style="display:block"><div class="info"><div class="t">Instructions personnalisées</div><div class="d" style="margin-bottom:12px">Consignes que l'IA suivra toujours lors de la rédaction (horaires, spécialités, ton à éviter…).</div></div>
             <textarea class="textarea" id="customInstructions" style="min-height:100px"></textarea></div>
           <div class="save-row"><span class="save-msg" id="iaMsg">Enregistré ✓</span><button class="btn btn-primary btn-sm" id="saveIa">Enregistrer</button></div>
@@ -107,7 +117,11 @@ toneSeg.addEventListener('click', e => {
   b.classList.add('on');
 });
 const autoSendToggle = document.getElementById('autoSendToggle');
-autoSendToggle.addEventListener('click', () => autoSendToggle.classList.toggle('on'));
+const delayRow = document.getElementById('delayRow');
+autoSendToggle.addEventListener('click', () => {
+  autoSendToggle.classList.toggle('on');
+  delayRow.style.display = autoSendToggle.classList.contains('on') ? 'flex' : 'none';
+});
 
 function flash(el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 2200); }
 
@@ -119,6 +133,8 @@ document.addEventListener('shell:ready', () => {
   const tone = u.tone || 'professionnel';
   toneSeg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.tone === tone));
   autoSendToggle.classList.toggle('on', !!u.auto_send);
+  delayRow.style.display = u.auto_send ? 'flex' : 'none';
+  document.getElementById('autoSendDelay').value = String(u.auto_send_delay_hours ?? 2);
   document.getElementById('customInstructions').value = u.custom_instructions || '';
 });
 
@@ -143,6 +159,7 @@ document.getElementById('saveIa').addEventListener('click', async () => {
     await window.AnswerAPI.post('settings-save', {
       tone: activeTone ? activeTone.dataset.tone : 'professionnel',
       auto_send: autoSendToggle.classList.contains('on'),
+      auto_send_delay_hours: Number(document.getElementById('autoSendDelay').value),
       custom_instructions: document.getElementById('customInstructions').value,
     });
     flash(document.getElementById('iaMsg'));
