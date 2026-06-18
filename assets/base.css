@@ -1,49 +1,62 @@
 /* ============================================================
-   AnswerAI — Shared design system
-   Navy #0F1729 · Indigo #4F46E5 · Soft white #F9FAFB
-   Green #10B981 (positive) · Amber #F59E0B (warning)
+   AnswerAI — Shared design system  ·  Warm & hospitable
+   Espresso #241E18 · Indigo #4F46E5 · Clay #C2613C
+   Paper #FBF8F3 · Gold #F59E0B · Sage #10B981
+   Type: Hanken Grotesk
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Brand */
-  --navy:        #0F1729;
-  --navy-700:    #1B2438;
-  --navy-600:    #273149;
+  /* Brand — dark surface (warm espresso, repurposed --navy) */
+  --navy:        #241E18;
+  --navy-700:    #322A22;
+  --navy-600:    #43392E;
+
+  /* Primary — indigo */
   --indigo:      #4F46E5;
   --indigo-600:  #4338CA;
-  --indigo-50:   #EEF0FE;
-  --indigo-100:  #E0E2FC;
-  --green:       #10B981;
-  --green-50:    #E7F8F1;
-  --amber:       #F59E0B;
-  --amber-50:    #FEF4E2;
-  --red:         #EF4444;
-  --red-50:      #FDECEC;
+  --indigo-50:   #EFEDFB;
+  --indigo-100:  #E2DEF8;
+  --indigo-light:#A9A3FF;
 
-  /* Neutrals */
-  --bg:          #F9FAFB;
+  /* Secondary — clay (hospitality warmth) */
+  --clay:        #C2613C;
+  --clay-600:    #A44E2E;
+  --clay-50:     #F8EBE2;
+  --clay-100:    #F0D8C8;
+
+  /* Semantic */
+  --green:       #10B981;
+  --green-50:    #E6F6EE;
+  --amber:       #F59E0B;
+  --amber-50:    #FBEFD9;
+  --red:         #E0533F;
+  --red-50:      #FBEAE5;
+
+  /* Neutrals — warm */
+  --bg:          #FBF8F3;
   --surface:     #FFFFFF;
-  --line:        #E8EAEF;
-  --line-strong: #D6D9E1;
-  --ink:         #0F1729;
-  --ink-2:       #3A4253;
-  --ink-3:       #6B7280;
-  --ink-4:       #9AA1AE;
+  --surface-2:   #F6F0E7;
+  --line:        #ECE4D8;
+  --line-strong: #DCD1C0;
+  --ink:         #251F18;
+  --ink-2:       #534A3E;
+  --ink-3:       #857A6B;
+  --ink-4:       #A99E8C;
 
   /* Type */
-  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sans: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  /* Radius & shadow */
+  /* Radius & shadow (warm-tinted) */
   --r-sm: 8px;
   --r:    12px;
   --r-lg: 16px;
   --r-xl: 22px;
-  --shadow-sm: 0 1px 2px rgba(15,23,41,.06), 0 1px 3px rgba(15,23,41,.05);
-  --shadow:    0 4px 16px rgba(15,23,41,.07), 0 1px 3px rgba(15,23,41,.05);
-  --shadow-lg: 0 18px 48px rgba(15,23,41,.14), 0 4px 12px rgba(15,23,41,.06);
-  --shadow-indigo: 0 10px 30px rgba(79,70,229,.28);
+  --shadow-sm: 0 1px 2px rgba(58,42,24,.05), 0 1px 3px rgba(58,42,24,.05);
+  --shadow:    0 4px 16px rgba(58,42,24,.07), 0 1px 3px rgba(58,42,24,.05);
+  --shadow-lg: 0 20px 50px rgba(36,30,24,.16), 0 5px 14px rgba(36,30,24,.07);
+  --shadow-indigo: 0 8px 24px rgba(79,70,229,.24);
 
   --maxw: 1180px;
 }
@@ -63,7 +76,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-h1, h2, h3, h4 { margin: 0; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.12; letter-spacing: -0.02em; font-weight: 700; }
 p { margin: 0; }
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
@@ -84,12 +97,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .btn:active { transform: translateY(1px); }
 .btn-primary { background: var(--indigo); color: #fff; box-shadow: var(--shadow-indigo); }
-.btn-primary:hover { background: var(--indigo-600); box-shadow: 0 14px 34px rgba(79,70,229,.36); }
+.btn-primary:hover { background: var(--indigo-600); box-shadow: 0 12px 30px rgba(79,70,229,.32); }
+.btn-clay { background: var(--clay); color: #fff; box-shadow: 0 8px 22px rgba(194,97,60,.24); }
+.btn-clay:hover { background: var(--clay-600); }
 .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.28); }
 .btn-ghost:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.5); }
-.btn-ghost-dark { background: transparent; color: var(--ink); border: 1px solid var(--line-strong); }
-.btn-ghost-dark:hover { background: #fff; border-color: var(--ink-4); }
-.btn-green { background: var(--green); color: #fff; box-shadow: 0 8px 22px rgba(16,185,129,.26); }
+.btn-ghost-dark { background: transparent; color: var(--ink-2); border: 1px solid var(--line-strong); }
+.btn-ghost-dark:hover { background: var(--surface); border-color: var(--ink-4); color: var(--ink); }
+.btn-green { background: var(--green); color: #fff; box-shadow: 0 8px 22px rgba(16,185,129,.24); }
 .btn-green:hover { filter: brightness(1.04); }
 .btn-sm { padding: 9px 15px; font-size: 13.5px; border-radius: var(--r-sm); }
 .btn-block { width: 100%; }
@@ -100,18 +115,26 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
 }
 .pill-indigo { background: var(--indigo-50); color: var(--indigo-600); }
+.pill-clay   { background: var(--clay-50);   color: var(--clay-600); }
 .pill-green  { background: var(--green-50);  color: #0a8a5f; }
-.pill-amber  { background: var(--amber-50);  color: #b06d05; }
-.pill-red    { background: var(--red-50);    color: #c0322f; }
-.pill-grey   { background: #F1F2F5;          color: var(--ink-3); }
+.pill-amber  { background: var(--amber-50);  color: #ad6c08; }
+.pill-red    { background: var(--red-50);    color: #b8402d; }
+.pill-grey   { background: var(--surface-2); color: var(--ink-3); }
 
 .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+
+/* ---------- Avatars ---------- */
+.avatar {
+  width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0;
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 15px;
+  letter-spacing: -.01em;
+}
 
 /* ---------- Stars ---------- */
 .stars { display: inline-flex; gap: 2px; }
 .stars svg { width: 16px; height: 16px; }
 .stars .on  { fill: var(--amber); }
-.stars .off { fill: #DfE2E8; }
+.stars .off { fill: #E4DCCE; }
 
 /* ---------- Cards ---------- */
 .card {
@@ -128,5 +151,5 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 .eyebrow {
   font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--indigo);
+  color: var(--clay-600);
 }

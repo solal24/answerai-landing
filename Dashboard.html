@@ -6,87 +6,133 @@
 <title>AnswerAI — Vue d'ensemble</title>
 <link rel="stylesheet" href="assets/base.css">
 <link rel="stylesheet" href="assets/dashboard.css">
+<style>
+.dash-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 26px; }
+.view { display: none; }
+.view.on { display: block; }
+.next-report { background: var(--navy); border: none; color: #fff; }
+.next-report .panel-body { padding: 22px; }
+</style>
 </head>
 <body data-page="dashboard" data-title="Vue d'ensemble">
 <div class="app">
   <div class="main">
     <div class="content">
-      <div class="page-head">
-        <h1>Bonjour 👋 Voici votre semaine</h1>
-        <p class="desc" id="pageDesc">Chargement de votre réputation…</p>
-      </div>
-
-      <!-- KPI ROW -->
-      <div class="kpi-row">
-        <div class="kpi">
-          <div class="k-top">
-            <span class="k-lbl">Note moyenne</span>
-            <span class="k-ico" style="background:var(--amber-50)"><svg viewBox="0 0 24 24"><path fill="#F59E0B" d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.7L12 17.3 5.8 20.8l1.6-6.7L2.2 9.5l6.9-.6L12 2z"/></svg></span>
-          </div>
-          <div class="k-val" id="kRating">—</div>
+      <div class="dash-head">
+        <div class="page-head" style="margin:0">
+          <h1>Bonjour 👋 Voici votre semaine</h1>
+          <p class="desc" id="pageDesc">Chargement de votre réputation…</p>
         </div>
-        <div class="kpi">
-          <div class="k-top">
-            <span class="k-lbl">Avis ce mois</span>
-            <span class="k-ico" style="background:var(--indigo-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#4F46E5" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
-          </div>
-          <div class="k-val" id="kCount">—</div>
-        </div>
-        <div class="kpi">
-          <div class="k-top">
-            <span class="k-lbl">Taux de réponse</span>
-            <span class="k-ico" style="background:var(--green-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.7-.9L3 20.5l1.5-5.2A8.4 8.4 0 1 1 21 11.5z" stroke="#10B981" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
-          </div>
-          <div class="k-val" id="kRate">—</div>
-        </div>
-        <div class="kpi">
-          <div class="k-top">
-            <span class="k-lbl">Avis filtrés (gating)</span>
-            <span class="k-ico" style="background:var(--amber-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5z" stroke="#F59E0B" stroke-width="1.7" stroke-linejoin="round"/></svg></span>
-          </div>
-          <div class="k-val" id="kGating">—</div>
-          <div class="k-trend trend-amber">insatisfaits traités en interne</div>
+        <div class="view-seg" id="layoutSeg">
+          <button data-layout="equilibree" class="on">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="11" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="17" y="4" width="4" height="16" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>
+            Équilibrée
+          </button>
+          <button data-layout="pilotage">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="5" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="11" width="18" height="10" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>
+            Pilotage
+          </button>
         </div>
       </div>
 
-      <!-- TWO COLUMNS -->
-      <div class="two-col" style="margin-top:22px;">
-        <!-- LEFT -->
-        <div class="panel">
+      <!-- ======================== ÉQUILIBRÉE ======================== -->
+      <div class="view on" id="viewEquilibree">
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="k-top"><span class="k-lbl">Note moyenne</span><span class="k-ico" style="background:var(--amber-50)"><svg viewBox="0 0 24 24"><path fill="#F59E0B" d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.7L12 17.3 5.8 20.8l1.6-6.7L2.2 9.5l6.9-.6L12 2z"/></svg></span></div>
+            <div class="k-val" data-kpi="rating">—</div>
+            <div class="k-trend" data-trend="rating"></div>
+          </div>
+          <div class="kpi">
+            <div class="k-top"><span class="k-lbl">Avis ce mois</span><span class="k-ico" style="background:var(--indigo-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#4F46E5" stroke-width="1.8" stroke-linejoin="round"/></svg></span></div>
+            <div class="k-val" data-kpi="count">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k-top"><span class="k-lbl">Taux de réponse</span><span class="k-ico" style="background:var(--green-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.7-.9L3 20.5l1.5-5.2A8.4 8.4 0 1 1 21 11.5z" stroke="#10B981" stroke-width="1.7" stroke-linejoin="round"/></svg></span></div>
+            <div class="k-val" data-kpi="rate">—</div>
+          </div>
+          <div class="kpi">
+            <div class="k-top"><span class="k-lbl">Avis filtrés (gating)</span><span class="k-ico" style="background:var(--clay-50)"><svg viewBox="0 0 24 24" fill="none"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5z" stroke="#C2613C" stroke-width="1.7" stroke-linejoin="round"/></svg></span></div>
+            <div class="k-val" data-kpi="gating">—</div>
+            <div class="k-trend trend-amber">insatisfaits traités en interne</div>
+          </div>
+        </div>
+
+        <div class="two-col" style="margin-top:22px;">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Avis récents à traiter</h2>
+              <a class="link-indigo" href="Avis.html">Voir tous les avis →</a>
+            </div>
+            <div class="panel-body" data-queue><p style="color:var(--ink-4);font-size:14px">Chargement…</p></div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:22px;">
+            <div class="panel">
+              <div class="panel-head"><h2>Évolution de la note</h2><span class="pill pill-grey" data-evol-period>—</span></div>
+              <div class="panel-body">
+                <div data-linechart><p style="color:var(--ink-4);font-size:13px">Pas encore assez d'avis pour une tendance.</p></div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:10px;">
+                  <span style="font-size:13px;color:var(--ink-3)" data-evol-start></span>
+                  <span style="font-weight:700;color:var(--green);font-size:14px;" data-evol-end></span>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h2>Mots clés fréquents</h2><span class="pill pill-grey">30 derniers jours</span></div>
+              <div class="panel-body">
+                <div class="kw-bars" data-kwbars><p style="color:var(--ink-4);font-size:13px">Pas encore assez d'avis pour une analyse.</p></div>
+              </div>
+            </div>
+            <div class="panel next-report">
+              <div class="panel-body">
+                <div style="display:flex; align-items:center; gap:10px; font-weight:700; font-size:15px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#A9A3FF" stroke-width="1.7"/><path d="M3 9h18M8 2v4M16 2v4" stroke="#A9A3FF" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  Rapports
+                </div>
+                <p style="color:rgba(255,255,255,.62); font-size:13.5px; margin-top:10px; line-height:1.5;">Consultez votre synthèse hebdomadaire et mensuelle : évolution de votre note, tendances et actions prioritaires.</p>
+                <a class="btn btn-primary btn-sm" href="Rapports.html" style="margin-top:16px;">Voir les rapports</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================== PILOTAGE ======================== -->
+      <div class="view" id="viewPilotage">
+        <div class="kpi-strip">
+          <div class="ks"><div class="l"><span class="d" style="background:var(--amber)"></span>Note moyenne</div><div class="v" data-kpi="rating">—</div><div class="t" data-trend="rating"></div></div>
+          <div class="ks"><div class="l"><span class="d" style="background:var(--indigo)"></span>Avis ce mois</div><div class="v" data-kpi="count">—</div></div>
+          <div class="ks"><div class="l"><span class="d" style="background:var(--green)"></span>Taux de réponse</div><div class="v" data-kpi="rate">—</div></div>
+          <div class="ks"><div class="l"><span class="d" style="background:var(--clay)"></span>Filtrés (gating)</div><div class="v" data-kpi="gating">—</div><div class="t" style="color:#ad6c08">en interne</div></div>
+        </div>
+
+        <div class="chart-row" style="margin-top:22px;">
+          <div class="panel">
+            <div class="panel-head"><h2>Évolution de la note</h2><span class="pill pill-grey" data-evol-period>—</span></div>
+            <div class="panel-body">
+              <div data-linechart><p style="color:var(--ink-4);font-size:13px">Pas encore assez d'avis pour une tendance.</p></div>
+              <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:10px;">
+                <span style="font-size:13px;color:var(--ink-3)" data-evol-start></span>
+                <span style="font-weight:700;color:var(--green);font-size:14px;" data-evol-end></span>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Mots clés fréquents</h2></div>
+            <div class="panel-body"><div class="kw-bars" data-kwbars><p style="color:var(--ink-4);font-size:13px">Pas encore assez d'avis pour une analyse.</p></div></div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:22px;">
           <div class="panel-head">
-            <h2>Avis récents à traiter</h2>
+            <h2>File d'attente · avis à traiter</h2>
             <a class="link-indigo" href="Avis.html">Voir tous les avis →</a>
           </div>
-          <div class="panel-body" id="reviewList"><p style="color:var(--ink-4);font-size:14px">Chargement…</p></div>
-        </div>
-
-        <!-- RIGHT -->
-        <div style="display:flex; flex-direction:column; gap:22px;">
-          <!-- keyword bars -->
-          <div class="panel">
-            <div class="panel-head"><h2>Mots clés fréquents</h2><span class="pill pill-grey">30 derniers jours</span></div>
-            <div class="panel-body">
-              <div class="kw-bars" id="kwBars"><p style="color:var(--ink-4);font-size:13px">Pas encore assez d'avis pour une analyse.</p></div>
-            </div>
-          </div>
-          <!-- actions recommandées -->
-          <div class="panel">
-            <div class="panel-head"><h2>Actions recommandées</h2></div>
-            <div class="panel-body" id="actionsBox"></div>
-          </div>
-          <!-- next report -->
-          <div class="panel" style="background:var(--navy); border:none; color:#fff;">
-            <div class="panel-body">
-              <div style="display:flex; align-items:center; gap:10px; font-weight:700; font-size:15px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#A9A3FF" stroke-width="1.7"/><path d="M3 9h18M8 2v4M16 2v4" stroke="#A9A3FF" stroke-width="1.7" stroke-linecap="round"/></svg>
-                Rapports
-              </div>
-              <p style="color:rgba(255,255,255,.62); font-size:13.5px; margin-top:10px; line-height:1.5;">Consultez votre synthèse hebdomadaire et mensuelle : évolution de votre note, tendances et actions prioritaires.</p>
-              <a class="btn btn-primary btn-sm" href="Rapports.html" style="margin-top:16px;">Voir les rapports</a>
-            </div>
-          </div>
+          <div class="panel-body" data-queue><p style="color:var(--ink-4);font-size:14px">Chargement…</p></div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -96,10 +142,12 @@
 <script src="assets/shell.js"></script>
 <script src="assets/charts.js"></script>
 <script>
+const AVATAR_COLORS = ['#4F46E5', '#C2613C', '#8C5BC8', '#0a8a5f', '#ad6c08'];
+
 function starsHtml(n) {
   n = Math.round(n || 0);
   let s = '';
-  for (let i = 1; i <= 5; i++) s += `<svg viewBox="0 0 24 24" width="15" height="15"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.7L12 17.3 5.8 20.8l1.6-6.7L2.2 9.5l6.9-.6L12 2z" fill="${i<=n?'var(--amber)':'#DfE2E8'}"/></svg>`;
+  for (let i = 1; i <= 5; i++) s += `<svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.7L12 17.3 5.8 20.8l1.6-6.7L2.2 9.5l6.9-.6L12 2z" fill="${i<=n?'var(--amber)':'#E4DCCE'}"/></svg>`;
   return s;
 }
 
@@ -112,8 +160,9 @@ function timeAgo(iso) {
   return `il y a ${Math.floor(h / 24)} j`;
 }
 
-function reviewCard(r) {
+function reviewCard(r, i) {
   const initial = (r.author_name || '?').charAt(0).toUpperCase();
+  const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
   const hasAi = !!r.ai_response;
   const isSent = r.status === 'sent';
   let pill, actions = '';
@@ -135,7 +184,7 @@ function reviewCard(r) {
   }
   return `<div class="rv" data-id="${r.id}">
     <div class="rv-top">
-      <span class="avatar" style="background:#4F46E5">${initial}</span>
+      <span class="avatar" style="background:${color}">${initial}</span>
       <div><div class="rv-name">${r.author_name || 'Client'}</div><div class="rv-meta">${timeAgo(r.time)} · Google</div></div>
       <span class="stars" style="margin-left:auto">${starsHtml(r.rating)}</span>
       ${pill}
@@ -143,6 +192,22 @@ function reviewCard(r) {
     <p class="rv-text rv-clamp">${r.text || ''}</p>
     ${actions}
   </div>`;
+}
+
+function setTrend(trend) {
+  const els = document.querySelectorAll('[data-trend="rating"]');
+  if (!trend) { els.forEach(el => el.textContent = ''); return; }
+  const vals = trend.map(t => t.avgRating).filter(v => v != null);
+  if (vals.length < 2 || vals[vals.length - 1] === vals[0]) { els.forEach(el => el.textContent = ''); return; }
+  const delta = +(vals[vals.length - 1] - vals[0]).toFixed(1);
+  const text = (delta > 0 ? `↑ +${delta}` : `↓ ${Math.abs(delta)}`) + ' sur 4 sem.';
+  els.forEach(el => { el.textContent = text; el.classList.toggle('trend-up', delta > 0); });
+}
+
+function buildTrendSeries(trend, fallback) {
+  if (!trend || !trend.length || fallback == null) return null;
+  let last = fallback;
+  return trend.map(t => { if (t.avgRating != null) last = t.avgRating; return last; });
 }
 
 async function load() {
@@ -154,41 +219,64 @@ async function load() {
     ]);
   } catch (e) {
     console.error('Dashboard.html: échec du chargement des données', e);
-    document.getElementById('reviewList').innerHTML = `<p style="color:var(--ink-4);font-size:14px">Impossible de charger les avis (${(e && e.message) || 'erreur inconnue'}). <a href="#" id="dashRetry" class="link-indigo">Réessayer</a></p>`;
-    const retry = document.getElementById('dashRetry');
-    if (retry) retry.addEventListener('click', (ev) => { ev.preventDefault(); load(); });
+    document.querySelectorAll('[data-queue]').forEach(el => {
+      el.innerHTML = `<p style="color:var(--ink-4);font-size:14px">Impossible de charger les avis (${(e && e.message) || 'erreur inconnue'}). <a href="#" class="link-indigo js-dash-retry">Réessayer</a></p>`;
+    });
+    document.querySelectorAll('.js-dash-retry').forEach(a => a.addEventListener('click', (ev) => { ev.preventDefault(); load(); }));
     return;
   }
 
   const estabName = window.AnswerUser?.establishment_name || 'votre établissement';
   document.getElementById('pageDesc').textContent = `Aperçu de la réputation de ${estabName}`;
 
-  document.getElementById('kRating').innerHTML = reviewsData.rating ? `${reviewsData.rating}<span class="u"> / 5</span>` : '—';
-  document.getElementById('kCount').textContent = report.reviews.total;
-  document.getElementById('kRate').innerHTML = report.reviews.total ? `${Math.round(100 * report.reviews.responded / report.reviews.total)}<span class="u">%</span>` : '—';
-  document.getElementById('kGating').textContent = report.gating.unsatisfied;
+  document.querySelectorAll('[data-kpi="rating"]').forEach(el => {
+    el.innerHTML = reviewsData.rating ? `${reviewsData.rating}<span class="u"> / 5</span>` : '—';
+  });
+  document.querySelectorAll('[data-kpi="count"]').forEach(el => { el.textContent = report.reviews.total; });
+  document.querySelectorAll('[data-kpi="rate"]').forEach(el => {
+    el.innerHTML = report.reviews.total ? `${Math.round(100 * report.reviews.responded / report.reviews.total)}<span class="u">%</span>` : '—';
+  });
+  document.querySelectorAll('[data-kpi="gating"]').forEach(el => { el.textContent = report.gating.unsatisfied; });
+  setTrend(report.trend);
 
   const list = reviewsData.reviews || [];
-  document.getElementById('reviewList').innerHTML = list.length
-    ? list.slice(0, 5).map(reviewCard).join('')
-    : '<p style="color:var(--ink-4);font-size:14px">Aucun avis pour le moment.</p>';
+  document.querySelectorAll('[data-queue]').forEach(el => {
+    el.innerHTML = list.length
+      ? list.slice(0, 5).map(reviewCard).join('')
+      : '<p style="color:var(--ink-4);font-size:14px">Aucun avis pour le moment.</p>';
+  });
 
-  if (report.keywords?.length) {
-    const max = Math.max(...report.keywords.map(k => k.count));
-    document.getElementById('kwBars').innerHTML = '';
-    AnswerCharts.kwBars(document.getElementById('kwBars'), report.keywords.map(k => ({
-      label: k.word.charAt(0).toUpperCase() + k.word.slice(1),
-      value: Math.round(100 * k.count / max),
-      tone: 'pos',
-    })));
-  }
+  document.querySelectorAll('[data-evol-period]').forEach(el => { el.textContent = `${report.trend ? report.trend.length : 0} semaines`; });
+  const series = buildTrendSeries(report.trend, reviewsData.rating ? Number(reviewsData.rating) : null);
+  document.querySelectorAll('[data-linechart]').forEach(el => {
+    if (series) {
+      const min = Math.max(1, Math.min(...series) - 0.3);
+      const max = Math.min(5, Math.max(...series) + 0.3);
+      AnswerCharts.line(el, series, { min, max });
+    }
+  });
+  document.querySelectorAll('[data-evol-start]').forEach(el => { el.textContent = report.trend ? `il y a ${report.trend.length} sem.` : ''; });
+  document.querySelectorAll('[data-evol-end]').forEach(el => {
+    const last = series ? series[series.length - 1] : reviewsData.rating;
+    el.textContent = last != null ? `${last} ★ aujourd'hui` : '';
+  });
 
-  document.getElementById('actionsBox').innerHTML = report.actions.map(a => `<p style="font-size:14px;color:var(--ink-2);line-height:1.55;margin-bottom:10px">• ${a}</p>`).join('');
+  document.querySelectorAll('[data-kwbars]').forEach(el => {
+    if (report.keywords?.length) {
+      const max = Math.max(...report.keywords.map(k => k.count));
+      el.innerHTML = '';
+      AnswerCharts.kwBars(el, report.keywords.map(k => ({
+        label: k.word.charAt(0).toUpperCase() + k.word.slice(1),
+        value: Math.round(100 * k.count / max),
+        tone: 'pos',
+      })));
+    }
+  });
 }
 
 document.addEventListener('shell:ready', load);
 
-document.getElementById('reviewList').addEventListener('click', async (e) => {
+document.querySelector('.content').addEventListener('click', async (e) => {
   const approve = e.target.closest('.js-approve');
   const generate = e.target.closest('.js-generate');
   if (approve) {
@@ -199,6 +287,16 @@ document.getElementById('reviewList').addEventListener('click', async (e) => {
     try { await window.AnswerAPI.post('generate', { reviewId: generate.dataset.id }); load(); } catch (e) { generate.disabled = false; generate.textContent = 'Générer une réponse IA'; }
   }
 });
+
+const layoutSeg = document.getElementById('layoutSeg');
+function setLayout(name) {
+  document.getElementById('viewEquilibree').classList.toggle('on', name === 'equilibree');
+  document.getElementById('viewPilotage').classList.toggle('on', name === 'pilotage');
+  layoutSeg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.layout === name));
+  localStorage.setItem('aa_dash_layout', name);
+}
+layoutSeg.addEventListener('click', e => { const b = e.target.closest('button'); if (b) setLayout(b.dataset.layout); });
+setLayout(localStorage.getItem('aa_dash_layout') || 'equilibree');
 </script>
 </body>
 </html>
